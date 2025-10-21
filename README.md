@@ -1,19 +1,25 @@
 # Away Frontend
 
+## Assignments
+
+[Assignment 4b: Frontend UI Coding](/assignment4b.md)
+
+## Overview
+
 Frontend for Away: a web application for users to document and share their past trips and future travel aspirations.
 
 Built with Vue.js, TypeScript, Vue Router, and Pinia.
 
-## Features
+## Development
 
-- ⚡️ [Vite](https://vitejs.dev/) - Fast build tool and dev server
-- 🖖 [Vue 3](https://vuejs.org/) - Progressive JavaScript framework
-- 📘 [TypeScript](https://www.typescriptlang.org/) - Type safety and better developer experience
-- 🛣️ [Vue Router](https://router.vuejs.org/) - Official router for Vue.js
-- 🍍 [Pinia](https://pinia.vuejs.org/) - Intuitive, type safe, light and flexible Store for Vue
-- 🧪 [Vitest](https://vitest.dev/) - Fast unit test framework
-- 🎨 [ESLint](https://eslint.org/) - Code linting
-- 💅 [Prettier](https://prettier.io/) - Code formatting
+- [Vite](https://vitejs.dev/) - Fast build tool and dev server
+- [Vue 3](https://vuejs.org/) - Progressive JavaScript framework
+- [TypeScript](https://www.typescriptlang.org/) - Type safety and better developer experience
+- [Vue Router](https://router.vuejs.org/) - Official router for Vue.js
+- [Pinia](https://pinia.vuejs.org/) - Intuitive, type safe, light and flexible Store for Vue
+- [Vitest](https://vitest.dev/) - Fast unit test framework
+- [ESLint](https://eslint.org/) - Code linting
+- [Prettier](https://prettier.io/) - Code formatting
 
 ## Getting Started
 
@@ -59,19 +65,19 @@ src/
 └── style.css        # Global styles
 ```
 
-## Development
+<!-- ## Development -->
 
-This project uses:
+<!-- This project uses:
 - **Vue 3** with Composition API
 - **TypeScript** for type safety
 - **Vue Router** for client-side routing
 - **Pinia** for state management
-- **Vite** for fast development and building
+- **Vite** for fast development and building -->
 
-## Contributing
+<!-- ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
 4. Run tests and linting
-5. Submit a pull request
+5. Submit a pull request -->

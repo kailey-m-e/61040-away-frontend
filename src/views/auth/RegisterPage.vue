@@ -160,6 +160,7 @@ label {
 input[type="text"],
 input[type="password"] {
   width: 100%;
+  box-sizing: border-box;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;

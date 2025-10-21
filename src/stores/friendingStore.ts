@@ -48,7 +48,15 @@ export const useFriendingStore = defineStore('friending', {
 
         if (Array.isArray(result.data)) {
           console.log('Setting incoming requests:', result.data)
-          this.incomingRequests = result.data
+          // Handle both cases: array of strings or array of user objects
+          this.incomingRequests = result.data.map((item: string | { _id: string }) => {
+            if (typeof item === 'string') {
+              return item
+            } else if (item && typeof item === 'object' && '_id' in item) {
+              return item._id
+            }
+            return String(item)
+          })
         } else {
           console.log('Result data is not an array:', result.data)
           this.incomingRequests = []
@@ -79,8 +87,15 @@ export const useFriendingStore = defineStore('friending', {
         }
 
         if (Array.isArray(result.data)) {
-          // Backend now returns array of user IDs directly
-          this.outgoingRequests = result.data
+          // Handle both cases: array of strings or array of user objects
+          this.outgoingRequests = result.data.map((item: string | { _id: string }) => {
+            if (typeof item === 'string') {
+              return item
+            } else if (item && typeof item === 'object' && '_id' in item) {
+              return item._id
+            }
+            return String(item)
+          })
         } else {
           this.outgoingRequests = []
         }
@@ -109,8 +124,15 @@ export const useFriendingStore = defineStore('friending', {
         }
 
         if (Array.isArray(result.data)) {
-          // Backend now returns array of user IDs directly
-          this.friends = result.data
+          // Handle both cases: array of strings or array of user objects
+          this.friends = result.data.map((item: string | { _id: string }) => {
+            if (typeof item === 'string') {
+              return item
+            } else if (item && typeof item === 'object' && '_id' in item) {
+              return item._id
+            }
+            return String(item)
+          })
         } else {
           this.friends = []
         }

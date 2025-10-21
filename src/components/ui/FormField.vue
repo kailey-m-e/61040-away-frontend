@@ -40,6 +40,8 @@ const fieldId = computed(() => props.id || `field-${Math.random().toString(36).s
 <style scoped>
 .form-field {
   margin-bottom: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-field__label {
@@ -57,6 +59,8 @@ const fieldId = computed(() => props.id || `field-${Math.random().toString(36).s
 
 .form-field__input-wrapper {
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-field__error {

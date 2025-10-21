@@ -155,7 +155,7 @@ onMounted(async () => {
 
 // Reload posts when navigating back to this route
 watch(() => route.path, async (newPath) => {
-  if (newPath === '/postcards') {
+  if (newPath === '/postcards' || newPath === '/posts/my') {
     await loadPosts()
   }
 })

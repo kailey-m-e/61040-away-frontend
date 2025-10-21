@@ -125,12 +125,15 @@ const strengthText = computed(() => {
 <style scoped>
 .password-input {
   width: 100%;
+  box-sizing: border-box;
 }
 
 .password-input__wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .password-input__field {
@@ -140,6 +143,7 @@ const strengthText = computed(() => {
   border-radius: 0.375rem;
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .password-input__field:focus {

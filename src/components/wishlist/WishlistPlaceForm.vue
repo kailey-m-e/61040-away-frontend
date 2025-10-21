@@ -146,6 +146,7 @@ const handleSubmit = async () => {
   border-radius: 0.375rem;
   font-size: 1rem;
   transition: all 0.2s;
+  box-sizing: border-box;
 }
 
 .place-form__input:focus {

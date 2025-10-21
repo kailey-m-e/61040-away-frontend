@@ -175,6 +175,7 @@ defineExpose({
   border-radius: 0.375rem;
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .date-range-picker__input:focus {

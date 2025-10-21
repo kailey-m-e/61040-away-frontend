@@ -152,12 +152,15 @@ watch(() => props.modelValue, (newValue) => {
 <style scoped>
 .username-input {
   width: 100%;
+  box-sizing: border-box;
 }
 
 .username-input__wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .username-input__field {
@@ -167,6 +170,7 @@ watch(() => props.modelValue, (newValue) => {
   border-radius: 0.375rem;
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .username-input__field:focus {

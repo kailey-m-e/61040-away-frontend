@@ -58,8 +58,8 @@ const handleLogout = async () => {
   // Force reactivity update
   await nextTick()
 
-  // Redirect to home page
-  await router.push('/')
+  // Redirect to login page
+  await router.push('/login')
 }
 
 // Initialize auth store on app start
