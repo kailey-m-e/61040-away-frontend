@@ -162,11 +162,17 @@ const handleViewPost = () => {
 .post-card__location,
 .post-card__dates {
   display: flex;
-  think-items: center;
+  align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
   font-size: 0.875rem;
   color: #6b7280;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
 }
 
 .post-card__description {

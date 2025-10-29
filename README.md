@@ -2,7 +2,9 @@
 
 ## Assignments
 
-[Assignment 4b: Frontend UI Coding](/assignment4b.md)
+[Assignment 4b Check-In: Frontend UI Coding](/assignment4b-checkin.md.md)
+
+[Assignment 4b Final: Frontend UI Coding](/assignment4b-final.md)
 
 ## Overview
 

@@ -72,7 +72,7 @@
 ```
 ---
 
-### GET /api/Wishlist/_getPlaces
+### POST /api/Wishlist/_getPlaces
 
 **Description:** Retrieves a user's places.
 

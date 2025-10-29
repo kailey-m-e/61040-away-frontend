@@ -2,8 +2,7 @@
   <div class="wishlist-page">
     <div class="wishlist-page__container">
       <div class="wishlist-page__header">
-        <h1 class="wishlist-page__title">My Wishlist</h1>
-        <p class="wishlist-page__subtitle">Keep track of places you'd love to visit</p>
+        <h1 class="wishlist-page__title">Wishlist</h1>
       </div>
 
       <!-- Add Place Form -->
@@ -27,10 +26,9 @@
 
       <!-- Empty State -->
       <div v-else-if="!places.length" class="wishlist-page__empty">
-        <div class="wishlist-page__empty-icon">✈️</div>
         <h2 class="wishlist-page__empty-title">Your wishlist is empty</h2>
         <p class="wishlist-page__empty-text">
-          Start adding places you'd love to visit!
+          Add your dream destinations!
         </p>
       </div>
 
@@ -99,14 +97,14 @@ onMounted(() => {
 }
 
 .wishlist-page__header {
-  text-align: center;
+  text-align: left;
   margin-bottom: 2rem;
 }
 
 .wishlist-page__title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #374151;
   margin: 0 0 0.5rem 0;
 }
 
@@ -184,7 +182,6 @@ onMounted(() => {
 
 .wishlist-page__grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 

@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="handleSubmit" class="post-form">
-    <h2 class="post-form__title">{{ isEditing ? 'Edit Post' : 'Create New Post' }}</h2>
+    <h2 class="post-form__title">{{ isEditing ? 'Edit Post' : 'Create Post' }}</h2>
 
     <div class="post-form__field">
       <label for="title" class="post-form__label">

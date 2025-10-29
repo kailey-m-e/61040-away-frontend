@@ -19,15 +19,29 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
+      console.log('Attempting to authenticate user:', credentials.username)
+
       const response = await UserAuthenticationService.authenticate({
         username: credentials.username,
         password: credentials.password,
       })
 
+      console.log('Authentication response received:', response)
+
       if (response.error) {
         error.value = response.error
-        return
+        console.error('Authentication failed with error:', response.error)
+        throw new Error(response.error)
       }
+
+      // Verify we have a successful response with data
+      if (!response.data) {
+        error.value = 'Authentication failed: Invalid response from server'
+        console.error('Authentication failed: No data in response')
+        throw new Error('Authentication failed: Invalid response from server')
+      }
+
+      console.log('Authentication successful for user:', credentials.username)
 
       // On successful authentication, set the user
       // Note: The API doesn't return user data on authentication,
@@ -41,6 +55,8 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('authUser', JSON.stringify(user.value))
     } catch (err: any) {
       error.value = err.message || 'Login failed'
+      console.error('Login error:', err)
+      throw err
     } finally {
       isLoading.value = false
     }
@@ -58,7 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (response.error) {
         error.value = response.error
-        return
+        throw new Error(response.error)
       }
 
       // On successful registration, set the user
@@ -73,6 +89,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
     } catch (err: any) {
       error.value = err.message || 'Registration failed'
+      throw err
     } finally {
       isLoading.value = false
     }

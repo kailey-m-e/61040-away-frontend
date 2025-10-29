@@ -216,7 +216,7 @@
 ```
 ---
 
-### GET /api/Posting/_getPosts
+### POST /api/Posting/_getPosts
 
 **Description:** Retrieves all posts for a given creator in order of start date.
 

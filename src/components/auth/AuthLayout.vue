@@ -6,7 +6,6 @@
           <img src="/src/assets/vue.svg" alt="Away" class="auth-layout__logo-image" />
           <h1 class="auth-layout__title">Away</h1>
         </div>
-        <p class="auth-layout__subtitle">Document and share your travel experiences</p>
       </div>
 
       <div class="auth-layout__content">

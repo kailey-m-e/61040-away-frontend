@@ -3,30 +3,26 @@
     <div class="create-post-page__container">
       <div class="create-post-page__header">
         <button @click="goBack" class="create-post-page__back-button">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Posts
+          Back
         </button>
 
         <div class="create-post-page__title-section">
-          <h1 class="create-post-page__title">Create New Post</h1>
-          <p class="create-post-page__subtitle">
-            Share your travel story with the world
-          </p>
+          <h1 class="create-post-page__title">New Postcard</h1>
         </div>
       </div>
 
       <div class="create-post-page__content">
         <form @submit.prevent="handleSubmit" class="post-form">
           <div class="post-form__section">
-            <label for="title" class="post-form__label">Post Title *</label>
+            <label for="title" class="post-form__label">Trip Title *</label>
             <input
               id="title"
               v-model="form.title"
               type="text"
               class="post-form__input"
-              placeholder="Enter an engaging title for your post"
               required
             />
             <div v-if="errors.title" class="post-form__error">{{ errors.title }}</div>
@@ -102,7 +98,6 @@
               id="description"
               v-model="form.description"
               class="post-form__textarea"
-              placeholder="Tell us about your travel experience, what you did, what you saw, and any recommendations..."
               rows="6"
               required
             ></textarea>
@@ -115,7 +110,7 @@
             </button>
             <button type="submit" class="post-form__button post-form__button--primary" :disabled="loading">
               <span v-if="loading" class="loading-spinner-small"></span>
-              {{ loading ? 'Creating...' : 'Create Post' }}
+              {{ loading ? 'Creating...' : 'Post' }}
             </button>
           </div>
         </form>
@@ -125,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePostStore } from '@/stores/postStore'
 import type { Post } from '@/types'
@@ -147,6 +142,18 @@ const form = reactive({
 // Form state
 const loading = ref(false)
 const errors = ref<Record<string, string>>({})
+
+// Reset form when component mounts
+onMounted(() => {
+  form.title = ''
+  form.city = ''
+  form.region = ''
+  form.country = ''
+  form.start = ''
+  form.end = ''
+  form.description = ''
+  errors.value = {}
+})
 
 const validateForm = () => {
   errors.value = {}
@@ -197,8 +204,6 @@ const validateForm = () => {
 
   if (!form.description.trim()) {
     errors.value.description = 'Description is required'
-  } else if (form.description.trim().length < 10) {
-    errors.value.description = 'Description must be at least 10 characters'
   }
 
   return Object.keys(errors.value).length === 0
@@ -259,24 +264,28 @@ const goBack = () => {
 }
 
 .create-post-page__back-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   background: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
   padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
-  margin-bottom: 1.5rem;
+  flex-shrink: 0;
 }
 
 .create-post-page__back-button:hover {
   background: #f9fafb;
-  border-color: #ff6b6b;
-  color: #ff6b6b;
+  border-color: #d1d5db;
+}
+
+.create-post-page__back-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .create-post-page__title-section {
@@ -286,7 +295,7 @@ const goBack = () => {
 .create-post-page__title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #374151;
   margin: 0 0 0.5rem 0;
 }
 
@@ -324,6 +333,7 @@ const goBack = () => {
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
+  font-family: sans-serif;
 }
 
 .post-form__input:focus,

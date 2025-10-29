@@ -38,17 +38,6 @@
           />
         </div>
 
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input
-              v-model="form.acceptTerms"
-              type="checkbox"
-              required
-            />
-            I agree to the terms and conditions
-          </label>
-        </div>
-
         <div v-if="authStore.error" class="error-message">
           {{ authStore.error }}
         </div>
@@ -78,15 +67,13 @@ const form = reactive({
   username: '',
   password: '',
   confirmPassword: '',
-  acceptTerms: false
 })
 
 const isFormValid = computed(() => {
   return form.username.trim() !== '' &&
          form.password.trim() !== '' &&
          form.confirmPassword.trim() !== '' &&
-         form.password === form.confirmPassword &&
-         form.acceptTerms
+         form.password === form.confirmPassword
 })
 
 const handleSubmit = async () => {
@@ -150,13 +137,6 @@ label {
   color: #374151;
 }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
 input[type="text"],
 input[type="password"] {
   width: 100%;
@@ -173,12 +153,6 @@ input[type="password"]:focus {
   outline: none;
   border-color: #ff6b6b;
   box-shadow: 0 0 0 1px #ff6b6b;
-}
-
-input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
-  accent-color: #ff6b6b;
 }
 
 button {

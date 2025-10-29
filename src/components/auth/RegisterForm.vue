@@ -48,7 +48,6 @@
     <div class="register-form__terms">
       <label class="register-form__terms-label">
         <input
-          v-model="form.acceptTerms"
           type="checkbox"
           class="register-form__checkbox"
           required
@@ -60,9 +59,6 @@
           <a href="/privacy" target="_blank" class="register-form__link">Privacy Policy</a>
         </span>
       </label>
-      <div v-if="fieldErrors.acceptTerms" class="register-form__terms-error">
-        {{ fieldErrors.acceptTerms }}
-      </div>
     </div>
 
     <AuthButton
@@ -117,18 +113,16 @@ const router = useRouter()
 const authStore = useAuthStore()
 const appStore = useAppStore()
 
-const form = reactive<RegisterForm & { acceptTerms: boolean }>({
+const form = reactive<RegisterForm & { }>({
   username: '',
   password: '',
   confirmPassword: '',
-  acceptTerms: false,
 })
 
 const fieldErrors = reactive({
   username: '',
   password: '',
   confirmPassword: '',
-  acceptTerms: '',
 })
 
 const usernameAvailable = ref(false)
@@ -139,7 +133,6 @@ const isFormValid = computed(() => {
   return form.username.trim() !== '' &&
          form.password.trim() !== '' &&
          form.confirmPassword.trim() !== '' &&
-         form.acceptTerms &&
          usernameAvailable.value &&
          !Object.values(fieldErrors).some(err => err !== '')
 })
@@ -157,9 +150,6 @@ const validateField = (field: keyof typeof fieldErrors) => {
       fieldErrors.confirmPassword = form.confirmPassword.trim() === '' ? 'Please confirm your password' :
                                    form.password !== form.confirmPassword ? 'Passwords do not match' : ''
       break
-    case 'acceptTerms':
-      fieldErrors.acceptTerms = !form.acceptTerms ? 'You must accept the terms and conditions' : ''
-      break
   }
 }
 
@@ -167,7 +157,6 @@ const validateForm = () => {
   validateField('username')
   validateField('password')
   validateField('confirmPassword')
-  validateField('acceptTerms')
   return Object.values(fieldErrors).every(err => err === '')
 }
 

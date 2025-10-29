@@ -2,7 +2,6 @@
   <form @submit.prevent="handleSubmit" class="friend-request-form">
     <div class="friend-request-form__content">
       <div class="friend-request-form__field">
-        <label for="username" class="friend-request-form__label">Username</label>
         <input
           id="username"
           v-model="username"
@@ -82,7 +81,7 @@ const handleSubmit = async () => {
 .friend-request-form {
   background: white;
   border-radius: 0.75rem;
-  padding: 1.5rem;
+  padding: 0.7rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 

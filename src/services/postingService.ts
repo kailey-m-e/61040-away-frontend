@@ -89,8 +89,8 @@ export class PostingService {
    */
   static async getPosts(data: GetPostsRequest): Promise<ApiResponse<GetPostsResponse>> {
     try {
-      // Query endpoints use GET with query parameters
-      const response = await apiClient.get('/api/Posting/_getPosts', { params: data })
+      // POST request - pass data directly in request body
+      const response = await apiClient.post('/api/Posting/_getPosts', data)
       console.log('Raw API response:', response) // Debug log
 
       // Ensure we have valid response data

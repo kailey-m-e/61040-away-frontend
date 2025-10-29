@@ -4,6 +4,7 @@ import router from './router'
 import App from './App.vue'
 
 import './style.css'
+import './assets/fonts/fonts.css'
 
 const app = createApp(App)
 

@@ -7,10 +7,17 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Friends
+          Back
         </button>
-        <h1 class="friend-profile-page__title">{{ friendUsername }}'s Profile</h1>
-        <p class="friend-profile-page__subtitle">View their travel stories and wishlist</p>
+        <h1 class="friend-profile-page__title">{{ friendUsername }}</h1>
+        <button
+          @click="handleRemoveFriend"
+          class="friend-profile-page__remove-button"
+          :disabled="removingFriend"
+        >
+          <span v-if="removingFriend" class="loading-spinner-small"></span>
+          <span v-else>Remove Friend</span>
+        </button>
       </div>
 
       <!-- Error State -->
@@ -47,18 +54,25 @@
               v-for="post in posts"
               :key="post._id"
               class="post-card"
-              @click="handlePostSelected(post)"
             >
               <div class="post-card__header">
                 <h3 class="post-card__title">{{ post.title }}</h3>
               </div>
               <div class="post-card__location">
+                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                </svg>
                 {{ post.city }}, {{ post.region }}, {{ post.country }}
               </div>
               <div class="post-card__dates">
+                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
                 {{ post.start ? formatDate(post.start) : 'N/A' }} - {{ post.end ? formatDate(post.end) : 'N/A' }}
               </div>
-              <p class="post-card__description">{{ post.description }}</p>
+              <div class="post-card__description-wrapper">
+                <p class="post-card__description">{{ post.description }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -100,17 +114,20 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { PostingService } from '@/services/postingService'
 import { WishlistService } from '@/services/wishlistService'
+import { useFriendingStore } from '@/stores/friendingStore'
 import type { Post } from '@/types'
 import type { WishlistPlace } from '@/types/api'
 
 const route = useRoute()
 const router = useRouter()
+const friendingStore = useFriendingStore()
 
 const friendUsername = computed(() => route.params.username as string)
 const posts = ref<Post[]>([])
 const wishlistPlaces = ref<WishlistPlace[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+const removingFriend = ref(false)
 
 const goBack = () => {
   router.push('/friends')
@@ -126,6 +143,26 @@ const formatDate = (dateString: string) => {
 
 const handlePostSelected = (post: Post) => {
   router.push(`/posts/${post._id}`)
+}
+
+const handleRemoveFriend = async () => {
+  const confirmRemove = confirm(`Are you sure you want to remove ${friendUsername.value} from your friends?`)
+
+  if (!confirmRemove) {
+    return
+  }
+
+  removingFriend.value = true
+
+  try {
+    await friendingStore.removeFriend(friendUsername.value)
+    removingFriend.value = false
+    await router.push('/friends')
+  } catch (err) {
+    removingFriend.value = false
+    console.error('Error removing friend:', err)
+    alert(err instanceof Error ? err.message : 'Failed to remove friend')
+  }
 }
 
 const loadData = async () => {
@@ -189,7 +226,10 @@ onMounted(() => {
 }
 
 .friend-profile-page__header {
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
@@ -205,7 +245,7 @@ onMounted(() => {
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
-  margin-bottom: 1rem;
+  flex-shrink: 0;
 }
 
 .friend-profile-page__back-button:hover {
@@ -221,8 +261,40 @@ onMounted(() => {
 .friend-profile-page__title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
+  color: #374151;
+  margin: 0;
+  text-align: center;
+  flex: 1;
+}
+
+.friend-profile-page__remove-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  font-size: 0.875rem;
+}
+
+.friend-profile-page__remove-button:hover:not(:disabled) {
+  background: #dc2626;
+  color: white;
+}
+
+.friend-profile-page__remove-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 .friend-profile-page__subtitle {
@@ -290,6 +362,7 @@ onMounted(() => {
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
 }
 
 .friend-profile-page__section-title {
@@ -315,7 +388,7 @@ onMounted(() => {
 
 .friend-profile-page__posts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 
@@ -324,13 +397,8 @@ onMounted(() => {
   border-radius: 0.75rem;
   padding: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.post-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+  cursor: default;
 }
 
 .post-card__header {
@@ -357,15 +425,38 @@ onMounted(() => {
   font-weight: 500;
 }
 
+.post-card__description-wrapper {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.post-card__description-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.post-card__description-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.post-card__description-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.post-card__description-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 .post-card__description {
   color: #374151;
   line-height: 1.4;
   margin: 0;
   font-size: 0.875rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .friend-profile-page__wishlist {
@@ -399,6 +490,14 @@ onMounted(() => {
   margin: 0;
 }
 
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-bottom: -0.2rem;
+  margin-right: 0.2rem;
+  color: #e19e8e;
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -409,8 +508,21 @@ onMounted(() => {
     padding: 1rem;
   }
 
+  .friend-profile-page__header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
   .friend-profile-page__title {
     font-size: 2rem;
+    text-align: center;
+  }
+
+  .friend-profile-page__back-button,
+  .friend-profile-page__remove-button {
+    width: 100%;
+    justify-content: center;
   }
 
   .friend-profile-page__posts {

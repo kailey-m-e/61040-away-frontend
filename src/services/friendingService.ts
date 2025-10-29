@@ -102,8 +102,8 @@ export class FriendingService {
   static async getIncomingRequests(data: GetIncomingRequestsRequest): Promise<ApiResponse<GetIncomingRequestsResponse>> {
     try {
       console.log('FriendingService: Fetching incoming requests for:', data)
-      // Query endpoints use GET with query parameters
-      const response = await apiClient.get('/api/Friending/_getIncomingRequests', { params: data })
+      // Query endpoints use POST with query parameters
+      const response = await apiClient.post('/api/Friending/_getIncomingRequests', data)
       console.log('FriendingService: Incoming requests response:', response.data)
       return { data: response.data }
     } catch (error: unknown) {
@@ -119,8 +119,8 @@ export class FriendingService {
   static async getOutgoingRequests(data: GetOutgoingRequestsRequest): Promise<ApiResponse<GetOutgoingRequestsResponse>> {
     try {
       console.log('FriendingService: Fetching outgoing requests for:', data)
-      // Query endpoints use GET with query parameters
-      const response = await apiClient.get('/api/Friending/_getOutgoingRequests', { params: data })
+      // Query endpoints use POST with query parameters
+      const response = await apiClient.post('/api/Friending/_getOutgoingRequests', data)
       console.log('FriendingService: Outgoing requests response:', response.data)
       return { data: response.data }
     } catch (error: unknown) {
@@ -136,8 +136,8 @@ export class FriendingService {
   static async getFriends(data: GetFriendsRequest): Promise<ApiResponse<GetFriendsResponse>> {
     try {
       console.log('FriendingService: Fetching friends for:', data)
-      // Query endpoints use GET with query parameters
-      const response = await apiClient.get('/api/Friending/_getFriends', { params: data })
+      // Query endpoints use POST with query parameters
+      const response = await apiClient.post('/api/Friending/_getFriends', data)
       console.log('FriendingService: Friends response:', response.data)
       return { data: response.data }
     } catch (error: unknown) {

@@ -1,4 +1,4 @@
-# Assignment 4b: Frontend UI Coding
+# Assignment 4b Check-In: Frontend UI Coding
 
 ## User Journey
 

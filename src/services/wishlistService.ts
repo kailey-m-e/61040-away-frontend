@@ -43,8 +43,8 @@ export class WishlistService {
   static async getPlaces(data: GetPlacesRequest): Promise<ApiResponse<GetPlacesResponse>> {
     try {
       console.log('WishlistService: Fetching places, request:', data)
-      // Query endpoints use GET with query parameters
-      const response = await apiClient.get('/api/Wishlist/_getPlaces', { params: data })
+      // Query endpoints use POST with query parameters
+      const response = await apiClient.post('/api/Wishlist/_getPlaces', data)
       console.log('WishlistService: Get places response:', response.data)
       return { data: response.data }
     } catch (error: any) {

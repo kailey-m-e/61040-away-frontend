@@ -11,7 +11,7 @@
         :disabled="removing"
       >
         <span v-if="removing" class="loading-spinner-small"></span>
-        <span v-else>Remove</span>
+        <span v-else>Delete</span>
       </button>
     </div>
   </div>

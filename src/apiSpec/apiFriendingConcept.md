@@ -204,7 +204,7 @@
 
 ---
 
-### GET /api/Friending/_getIncomingRequests
+### POST /api/Friending/_getIncomingRequests
 
 **Description:** Retrieves all users who have requested given user as a friend.
 
@@ -239,7 +239,7 @@
 
 ---
 
-### GET /api/Friending/_getOutgoingRequests
+### POST /api/Friending/_getOutgoingRequests
 
 **Description:** Retrieves all friends that given user has an outgoing request for.
 
@@ -274,7 +274,7 @@
 
 ---
 
-### GET /api/Friending/_getFriends
+### POST /api/Friending/_getFriends
 
 **Description:** Retrieves all friends of given user.
 

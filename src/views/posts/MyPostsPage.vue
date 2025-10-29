@@ -2,11 +2,18 @@
   <div class="my-posts-page">
     <div class="my-posts-page__container">
       <div class="my-posts-page__header">
-        <div class="my-posts-page__title-section">
-          <h1 class="my-posts-page__title">Postcards</h1>
-          <p class="my-posts-page__subtitle">
-            Manage your travel stories and experiences
-          </p>
+        <h1 class="my-posts-page__title">Postcards</h1>
+
+        <div class="my-posts-page__header-stats">
+          <div class="my-posts-page__stat-badge">
+            {{ posts.length }} Posts
+          </div>
+          <div class="my-posts-page__stat-badge">
+            {{ uniqueCountries }} Countries
+          </div>
+          <div class="my-posts-page__stat-badge">
+            {{ uniqueStates }} States
+          </div>
         </div>
 
         <div class="my-posts-page__actions">
@@ -17,19 +24,8 @@
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
             </svg>
-            Create Post
+            Create
           </button>
-        </div>
-      </div>
-
-      <div class="my-posts-page__stats">
-        <div class="my-posts-page__stat">
-          <div class="my-posts-page__stat-number">{{ posts.length }}</div>
-          <div class="my-posts-page__stat-label">Total Posts</div>
-        </div>
-        <div class="my-posts-page__stat">
-          <div class="my-posts-page__stat-number">{{ uniqueCountries }}</div>
-          <div class="my-posts-page__stat-label">Countries Visited</div>
         </div>
       </div>
 
@@ -54,7 +50,7 @@
             </svg>
             <h3 class="empty-state__title">No posts yet</h3>
             <p class="empty-state__description">
-              You haven't created any posts yet. Start sharing your travel stories!
+              You haven't created any posts yet.
             </p>
             <button @click="handleCreatePost" class="empty-state__button">
               Create your first post
@@ -72,18 +68,28 @@
             <div class="post-card__header">
               <h3 class="post-card__title">{{ post.title }}</h3>
               <div class="post-card__actions">
-                <button @click.stop="handleEditPost(post)" class="post-card__action">
-                  Edit
+                <button @click.stop="handleEditPost(post)" class="post-card__action" title="Edit postcard">
+                  <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
                 </button>
-                <button @click.stop="handleDeletePost(post)" class="post-card__action post-card__action--danger">
-                  Delete
+                <button @click.stop="handleDeletePost(post)" class="post-card__action post-card__action--danger" title="Delete postcard">
+                  <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
                 </button>
               </div>
             </div>
             <div class="post-card__location">
+              <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+              </svg>
               {{ post.city }}, {{ post.region }}, {{ post.country }}
             </div>
             <div class="post-card__dates">
+              <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+              </svg>
               {{ post.start ? formatDate(post.start) : 'N/A' }} - {{ post.end ? formatDate(post.end) : 'N/A' }}
             </div>
             <p class="post-card__description">{{ post.description }}</p>
@@ -112,6 +118,11 @@ const postStore = usePostStore()
   const uniqueCountries = computed(() => {
     const countries = new Set(posts.value.map(post => post.country))
     return countries.size
+})
+
+  const uniqueStates = computed(() => {
+    const states = new Set(posts.value.map(post => post.region))
+    return states.size
 })
 
 const formatDate = (dateString: string) => {
@@ -176,25 +187,42 @@ watch(() => route.path, async (newPath) => {
 .my-posts-page__header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
+  gap: 2rem;
   margin-bottom: 2rem;
-}
-
-.my-posts-page__title-section {
-  flex: 1;
 }
 
 .my-posts-page__title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
+  color: #374151;
+  margin: 0;
+  flex-shrink: 0;
 }
 
-.my-posts-page__subtitle {
-  font-size: 1.125rem;
-  color: #6b7280;
-  margin: 0;
+.my-posts-page__header-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.my-posts-page__stat-inline {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.my-posts-page__stat-badge {
+  background: white;
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  min-width: 1.5rem;
+  text-align: center;
+  color: #ff6b6b;
+  box-shadow: 0 2px 3px -1px rgba(0, 0, 0, 0.1);
 }
 
 .my-posts-page__actions {
@@ -216,36 +244,12 @@ watch(() => route.path, async (newPath) => {
   transition: background-color 0.2s;
 }
 
+.my-posts-page__create-button svg {
+  height: 2rem;
+}
+
 .my-posts-page__create-button:hover {
   background-color: #ff5252;
-}
-
-.my-posts-page__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.my-posts-page__stat {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-.my-posts-page__stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #ff6b6b;
-  margin-bottom: 0.5rem;
-}
-
-.my-posts-page__stat-label {
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: 500;
 }
 
 .my-posts-page__loading {
@@ -350,7 +354,7 @@ watch(() => route.path, async (newPath) => {
 
 .my-posts-page__posts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 
@@ -386,19 +390,26 @@ watch(() => route.path, async (newPath) => {
 
 .post-card__actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.2rem;
   flex-shrink: 0;
 }
 
 .post-card__action {
-  padding: 0.25rem 0.75rem;
-  border: 1px solid #d1d5db;
+  padding: 0.5rem 0.5rem;
   background: white;
   color: #374151;
   border-radius: 0.25rem;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  border: none;
+}
+
+.post-card__action svg {
+  color: #ff6b6b;
 }
 
 .post-card__action:hover {
@@ -408,6 +419,10 @@ watch(() => route.path, async (newPath) => {
 .post-card__action--danger {
   color: #dc2626;
   border-color: #fecaca;
+}
+
+.post-card__action--danger svg {
+  color: #dc2626;
 }
 
 .post-card__action--danger:hover {
@@ -423,7 +438,7 @@ watch(() => route.path, async (newPath) => {
 }
 
 .post-card__description {
-  color: #374151;
+  color: black;
   line-height: 1.4;
   margin: 0;
   font-size: 0.875rem;
@@ -431,6 +446,13 @@ watch(() => route.path, async (newPath) => {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-bottom: -0.2rem;
+  color: #e19e8e;
 }
 
 @media (max-width: 768px) {
@@ -446,19 +468,36 @@ watch(() => route.path, async (newPath) => {
 
   .my-posts-page__title {
     font-size: 2rem;
+    width: 100%;
   }
 
-  .my-posts-page__subtitle {
+  .my-posts-page__header-stats {
+    width: 100%;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .my-posts-page__stat-inline-number {
+    font-size: 1.25rem;
+  }
+
+  .my-posts-page__stat-inline-label {
+    font-size: 0.875rem;
+  }
+
+  .my-posts-page__stat-badge {
+    width: 40px;
+    height: 40px;
     font-size: 1rem;
+  }
+
+  .my-posts-page__actions {
+    width: 100%;
   }
 
   .my-posts-page__create-button {
     width: 100%;
     justify-content: center;
-  }
-
-  .my-posts-page__stats {
-    grid-template-columns: 1fr;
   }
 
   .my-posts-page__posts {

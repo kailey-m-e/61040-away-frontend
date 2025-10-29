@@ -3,7 +3,7 @@
     <nav>
       <div class="nav__brand">
         <RouterLink to="/" class="nav__logo">
-          Away
+          away
         </RouterLink>
       </div>
 
@@ -13,10 +13,20 @@
         <RouterLink v-if="isAuthenticated" to="/friends">Friends</RouterLink>
 
         <template v-if="isAuthenticated">
-          <div class="nav__avatar">
-            {{ userInitial }}
+          <div class="nav__user-menu" ref="userMenuRef">
+            <button @click="toggleUserMenu" class="nav__avatar-button">
+              <div class="nav__avatar">
+                {{ userInitial }}
+              </div>
+            </button>
+
+            <div v-if="showUserMenu" class="nav__dropdown">
+              <div class="nav__dropdown-username">{{ username }}</div>
+              <button @click="handleLogout" class="nav__dropdown-logout">
+                Logout
+              </button>
+            </div>
           </div>
-          <button @click="handleLogout" class="nav__logout">Logout</button>
         </template>
         <template v-else>
           <RouterLink to="/login">Login</RouterLink>
@@ -36,12 +46,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, nextTick } from 'vue'
+import { onMounted, onUnmounted, computed, nextTick, ref } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+// User menu state
+const showUserMenu = ref(false)
+const userMenuRef = ref<HTMLElement | null>(null)
 
 // Computed properties to ensure reactivity
 const isAuthenticated = computed(() => authStore.isAuthenticated)
@@ -51,7 +65,14 @@ const userInitial = computed(() => {
   return name ? name.charAt(0).toUpperCase() : ''
 })
 
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
+}
+
 const handleLogout = async () => {
+  // Close the menu
+  showUserMenu.value = false
+
   // Clear auth state
   authStore.logout()
 
@@ -62,9 +83,21 @@ const handleLogout = async () => {
   await router.push('/login')
 }
 
+// Close menu when clicking outside
+const handleClickOutside = (event: MouseEvent) => {
+  if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
+    showUserMenu.value = false
+  }
+}
+
 // Initialize auth store on app start
 onMounted(() => {
   authStore.initializeAuth()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -97,8 +130,9 @@ nav {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-family: Oduda, sans-serif;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 2.2rem;
   color: #ff6b6b;
   text-decoration: none;
   transition: color 0.2s;
@@ -116,6 +150,7 @@ nav {
 
 .nav__links a {
   font-weight: 500;
+  font-size: 1.25rem;
   color: #374151;
   text-decoration: none;
   transition: color 0.2s;
@@ -129,11 +164,27 @@ nav {
   color: #ff6b6b;
 }
 
+.nav__user-menu {
+  position: relative;
+}
+
+.nav__avatar-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.nav__avatar-button:hover {
+  transform: scale(1.05);
+}
+
 .nav__avatar {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background-color: #ff6b6b;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee9027 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -143,19 +194,55 @@ nav {
   flex-shrink: 0;
 }
 
-.nav__logout {
-  background-color: #ff6b6b;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+.nav__dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  min-width: 200px;
+  overflow: hidden;
+  z-index: 50;
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nav__dropdown-username {
+  padding: 1rem;
+  font-weight: 500;
+  color: #1f2937;
   font-size: 0.875rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f8fafc;
+}
+
+.nav__dropdown-logout {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.nav__logout:hover {
-  background-color: #ff5252;
+.nav__dropdown-logout:hover {
+  background-color: #fef2f2;
 }
 
 .nav__auth {
