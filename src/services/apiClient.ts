@@ -1,12 +1,15 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosResponse } from 'axios'
 
-// Base API configuration
-const API_BASE_URL = '' // Empty string for relative URLs when using Vite proxy
+// Read build-time env var and normalize. If not provided, leave empty so dev proxy
+// (configured in vite.config.ts) will handle `/api` paths on localhost.
+const _envBase = import.meta.env.VITE_API_BASE_URL as string | undefined
+const API_BASE_URL = _envBase ? _envBase.replace(/\/$/, '') : ''
 
-// Create axios instance with base configuration
+// Create axios instance with base configuration. When API_BASE_URL is empty,
+// axios will send requests to the same origin (useful for dev proxy).
 const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_BASE_URL || undefined,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
