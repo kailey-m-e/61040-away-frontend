@@ -2,30 +2,33 @@
   <div class="my-posts-page">
     <div class="my-posts-page__container">
       <div class="my-posts-page__header">
-        <h1 class="my-posts-page__title">Postcards</h1>
+        <div class="my-posts-page__header-bottom">
+          <div class="my-posts-page__header-stats">
+            <div class="my-posts-page__stat-badge">
+              <div class="stat-badge__number">{{ posts.length }}</div>
+              <div class="stat-badge__label">Posts</div>
+            </div>
+            <div class="my-posts-page__stat-badge">
+              <div class="stat-badge__number">{{ uniqueCountries }}</div>
+              <div class="stat-badge__label">Countries</div>
+            </div>
+            <div class="my-posts-page__stat-badge">
+              <div class="stat-badge__number">{{ uniqueStates }}</div>
+              <div class="stat-badge__label">States</div>
+            </div>
+          </div>
 
-        <div class="my-posts-page__header-stats">
-          <div class="my-posts-page__stat-badge">
-            {{ posts.length }} Posts
+          <div class="my-posts-page__actions">
+            <button
+              @click="handleCreatePost"
+              class="my-posts-page__create-button"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+              </svg>
+              Create
+            </button>
           </div>
-          <div class="my-posts-page__stat-badge">
-            {{ uniqueCountries }} Countries
-          </div>
-          <div class="my-posts-page__stat-badge">
-            {{ uniqueStates }} States
-          </div>
-        </div>
-
-        <div class="my-posts-page__actions">
-          <button
-            @click="handleCreatePost"
-            class="my-posts-page__create-button"
-          >
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Create
-          </button>
         </div>
       </div>
 
@@ -101,13 +104,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { usePostStore } from '@/stores/postStore'
 import type { Post } from '@/types'
 
 const router = useRouter()
-const route = useRoute()
 const postStore = usePostStore()
 
 // Use posts and loading from store
@@ -142,6 +144,10 @@ const handleCreatePost = () => {
 }
 
 const handlePostSelected = (post: Post) => {
+  console.log('MyPostsPage: Post clicked:', post)
+  console.log('MyPostsPage: Post._id:', post._id)
+  console.log('MyPostsPage: Post._id type:', typeof post._id)
+  console.log('MyPostsPage: Navigating to:', `/posts/${post._id}`)
   router.push(`/posts/${post._id}`)
 }
 
@@ -163,13 +169,6 @@ const handleDeletePost = async (post: Post) => {
 onMounted(async () => {
   await loadPosts()
 })
-
-// Reload posts when navigating back to this route
-watch(() => route.path, async (newPath) => {
-  if (newPath === '/postcards' || newPath === '/posts/my') {
-    await loadPosts()
-  }
-})
 </script>
 
 <style scoped>
@@ -186,43 +185,47 @@ watch(() => route.path, async (newPath) => {
 
 .my-posts-page__header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
-.my-posts-page__title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #374151;
-  margin: 0;
-  flex-shrink: 0;
+.my-posts-page__header-bottom {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
 }
 
 .my-posts-page__header-stats {
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex: 1;
-}
-
-.my-posts-page__stat-inline {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
 }
 
 .my-posts-page__stat-badge {
   background: white;
-  font-size: 1.25rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
-  min-width: 1.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
   text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 80px;
+}
+
+.stat-badge__number {
+  font-size: 1.5rem;
+  font-weight: 700;
   color: #ff6b6b;
-  box-shadow: 0 2px 3px -1px rgba(0, 0, 0, 0.1);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stat-badge__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .my-posts-page__actions {
@@ -242,6 +245,7 @@ watch(() => route.path, async (newPath) => {
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
+  box-shadow: 0 2px 3px -1px rgba(0, 0, 0, 0.1);
 }
 
 .my-posts-page__create-button svg {

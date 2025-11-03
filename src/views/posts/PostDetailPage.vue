@@ -140,19 +140,29 @@ const loadPost = async () => {
   error.value = null
 
   try {
+    console.log('PostDetailPage: Loading post with ID:', postId.value)
+    console.log('PostDetailPage: Current posts in store:', postStore.posts)
+
     // First, try to get the post from the store
     let foundPost = postStore.getPost(postId.value)
+    console.log('PostDetailPage: Found post in store (1st attempt):', foundPost)
 
     // If not found in store, load all posts and try again
     if (!foundPost) {
+      console.log('PostDetailPage: Post not in store, loading all posts...')
       await postStore.loadPosts()
+      console.log('PostDetailPage: Posts after loading:', postStore.posts)
       foundPost = postStore.getPost(postId.value)
+      console.log('PostDetailPage: Found post in store (2nd attempt):', foundPost)
     }
 
     if (!foundPost) {
+      console.error('PostDetailPage: Post not found with ID:', postId.value)
+      console.error('PostDetailPage: Available post IDs:', postStore.posts.map(p => p._id))
       error.value = 'Post not found'
     } else {
       post.value = foundPost
+      console.log('PostDetailPage: Successfully loaded post:', post.value)
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load post'

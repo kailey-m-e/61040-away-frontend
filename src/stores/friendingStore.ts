@@ -30,7 +30,9 @@ export const useFriendingStore = defineStore('friending', {
   actions: {
     async fetchIncomingRequests() {
       const auth = useAuthStore()
-      if (!auth.user) {
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
         throw new Error('Not authenticated')
       }
 
@@ -38,27 +40,25 @@ export const useFriendingStore = defineStore('friending', {
       this.error = null
 
       try {
-        console.log('Fetching incoming requests for user:', auth.user.username)
-        const result = await FriendingService.getIncomingRequests({ user: auth.user.username })
+        console.log('Fetching incoming requests with session:', sessionId)
+        const result = await FriendingService.getIncomingRequests(sessionId)
         console.log('Incoming requests result:', result)
 
         if (result.error) {
+          // If user doesn't exist in Friending yet, initialize with empty array
+          if (result.error.includes('null') || result.error.includes('not found')) {
+            console.warn('User not initialized in Friending yet, using empty incoming requests')
+            this.incomingRequests = []
+            return
+          }
           throw new Error(result.error)
         }
 
-        if (Array.isArray(result.data)) {
-          console.log('Setting incoming requests:', result.data)
-          // Handle both cases: array of strings or array of user objects
-          this.incomingRequests = result.data.map((item: string | { _id: string }) => {
-            if (typeof item === 'string') {
-              return item
-            } else if (item && typeof item === 'object' && '_id' in item) {
-              return item._id
-            }
-            return String(item)
-          })
+        if (result.data && 'results' in result.data) {
+          console.log('Setting incoming requests:', result.data.results)
+          this.incomingRequests = result.data.results
         } else {
-          console.log('Result data is not an array:', result.data)
+          console.log('Result data is not in expected format:', result.data)
           this.incomingRequests = []
         }
         console.log('Final incoming requests state:', this.incomingRequests)
@@ -72,7 +72,9 @@ export const useFriendingStore = defineStore('friending', {
 
     async fetchOutgoingRequests() {
       const auth = useAuthStore()
-      if (!auth.user) {
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
         throw new Error('Not authenticated')
       }
 
@@ -80,23 +82,26 @@ export const useFriendingStore = defineStore('friending', {
       this.error = null
 
       try {
-        const result = await FriendingService.getOutgoingRequests({ user: auth.user.username })
+        console.log('Store: Fetching outgoing requests...')
+        const result = await FriendingService.getOutgoingRequests(sessionId)
+        console.log('Store: Outgoing requests result:', result)
 
         if (result.error) {
+          // If user doesn't exist in Friending yet, initialize with empty array
+          if (result.error.includes('null') || result.error.includes('not found')) {
+            console.warn('User not initialized in Friending yet, using empty outgoing requests')
+            this.outgoingRequests = []
+            return
+          }
           throw new Error(result.error)
         }
 
-        if (Array.isArray(result.data)) {
-          // Handle both cases: array of strings or array of user objects
-          this.outgoingRequests = result.data.map((item: string | { _id: string }) => {
-            if (typeof item === 'string') {
-              return item
-            } else if (item && typeof item === 'object' && '_id' in item) {
-              return item._id
-            }
-            return String(item)
-          })
+        if (result.data && 'results' in result.data) {
+          console.log('Store: Setting outgoingRequests to:', result.data.results)
+          this.outgoingRequests = result.data.results
+          console.log('Store: outgoingRequests is now:', this.outgoingRequests)
         } else {
+          console.log('Store: Result data not in expected format, setting to empty array')
           this.outgoingRequests = []
         }
       } catch (error) {
@@ -109,7 +114,9 @@ export const useFriendingStore = defineStore('friending', {
 
     async fetchFriends() {
       const auth = useAuthStore()
-      if (!auth.user) {
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
         throw new Error('Not authenticated')
       }
 
@@ -117,22 +124,20 @@ export const useFriendingStore = defineStore('friending', {
       this.error = null
 
       try {
-        const result = await FriendingService.getFriends({ user: auth.user.username })
+        const result = await FriendingService.getFriends(sessionId)
 
         if (result.error) {
+          // If user doesn't exist in Friending yet, initialize with empty array
+          if (result.error.includes('null') || result.error.includes('not found')) {
+            console.warn('User not initialized in Friending yet, using empty friends list')
+            this.friends = []
+            return
+          }
           throw new Error(result.error)
         }
 
-        if (Array.isArray(result.data)) {
-          // Handle both cases: array of strings or array of user objects
-          this.friends = result.data.map((item: string | { _id: string }) => {
-            if (typeof item === 'string') {
-              return item
-            } else if (item && typeof item === 'object' && '_id' in item) {
-              return item._id
-            }
-            return String(item)
-          })
+        if (result.data && 'results' in result.data) {
+          this.friends = result.data.results
         } else {
           this.friends = []
         }
@@ -158,47 +163,16 @@ export const useFriendingStore = defineStore('friending', {
       ])
     },
 
-    async fetchUserFriendData() {
-      const auth = useAuthStore()
-      if (!auth.user) {
-        throw new Error('Not authenticated')
-      }
-
-      this.loading = true
-      this.error = null
-
-      try {
-        // Fetch incoming requests which returns user documents
-        const result = await FriendingService.getIncomingRequests({ user: auth.user.username })
-
-        if (result.error) {
-          throw new Error(result.error)
-        }
-
-        if (Array.isArray(result.data)) {
-          // Set incoming requests (users who sent requests to current user)
-          this.incomingRequests = result.data
-
-          // We need to fetch the current user's own data separately
-          // For now, we'll need to make additional API calls or get this data another way
-          // The backend doesn't provide a direct way to get current user's friends/outgoing
-          console.log('Need to implement fetching user own friends and outgoing requests')
-        }
-      } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Failed to fetch friend data'
-        console.error('Error fetching friend data:', error)
-      } finally {
-        this.loading = false
-      }
-    },
     async sendFriendRequest(friendUsername: string) {
       const auth = useAuthStore()
-      if (!auth.user) {
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
         throw new Error('Not authenticated')
       }
 
       // Validation: friend does not equal user
-      if (auth.user.username === friendUsername) {
+      if (auth.user?.username === friendUsername) {
         throw new Error('You cannot send a friend request to yourself')
       }
 
@@ -221,19 +195,25 @@ export const useFriendingStore = defineStore('friending', {
       this.error = null
 
       try {
+        console.log('Store: Sending friend request to:', friendUsername)
         const result = await FriendingService.requestFriend({
-          user: auth.user.username,
+          session: sessionId,
           friend: friendUsername
         })
+        console.log('Store: Friend request result:', result)
 
         if (result.error) {
           throw new Error(result.error)
         }
 
+        // Reset loading before fetching to avoid duplicate request check
+        this.loading = false
+
+        console.log('Store: Friend request successful, refreshing outgoing requests...')
         // Refresh outgoing requests to get updated list from backend
-        // Temporarily catch errors if endpoint not available
         try {
           await this.fetchOutgoingRequests()
+          console.log('Store: Finished refreshing outgoing requests')
         } catch (err) {
           console.warn('Could not fetch outgoing requests (endpoint may not be available):', err)
           // Don't throw - allow the friend request to complete successfully
@@ -241,15 +221,16 @@ export const useFriendingStore = defineStore('friending', {
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to send friend request'
         console.error('Error sending friend request:', error)
-        throw error
-      } finally {
         this.loading = false
+        throw error
       }
     },
 
     async cancelFriendRequest(friendUsername: string) {
       const auth = useAuthStore()
-      if (!auth.user) {
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
         throw new Error('Not authenticated')
       }
 
@@ -263,13 +244,16 @@ export const useFriendingStore = defineStore('friending', {
 
       try {
         const result = await FriendingService.unrequestFriend({
-          user: auth.user.username,
+          session: sessionId,
           friend: friendUsername
         })
 
         if (result.error) {
           throw new Error(result.error)
         }
+
+        // Reset loading before fetching
+        this.loading = false
 
         // Refresh outgoing requests to get updated list from backend
         try {
@@ -280,15 +264,16 @@ export const useFriendingStore = defineStore('friending', {
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to cancel friend request'
         console.error('Error canceling friend request:', error)
-        throw error
-      } finally {
         this.loading = false
+        throw error
       }
     },
 
     async acceptFriendRequest(friendUsername: string) {
       const auth = useAuthStore()
-      if (!auth.user) {
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
         throw new Error('Not authenticated')
       }
 
@@ -302,13 +287,16 @@ export const useFriendingStore = defineStore('friending', {
 
       try {
         const result = await FriendingService.acceptFriend({
-          user: auth.user.username,
+          session: sessionId,
           friend: friendUsername
         })
 
         if (result.error) {
           throw new Error(result.error)
         }
+
+        // Reset loading before fetching
+        this.loading = false
 
         // Refresh all data to ensure both users see the updated friends list
         try {
@@ -322,13 +310,14 @@ export const useFriendingStore = defineStore('friending', {
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to accept friend request'
         console.error('Error accepting friend request:', error)
-        throw error
-      } finally {
         this.loading = false
+        throw error
       }
     },    async rejectFriendRequest(friendUsername: string) {
       const auth = useAuthStore()
-      if (!auth.user) {
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
         throw new Error('Not authenticated')
       }
 
@@ -342,13 +331,16 @@ export const useFriendingStore = defineStore('friending', {
 
       try {
         const result = await FriendingService.rejectFriend({
-          user: auth.user.username,
+          session: sessionId,
           friend: friendUsername
         })
 
         if (result.error) {
           throw new Error(result.error)
         }
+
+        // Reset loading before fetching
+        this.loading = false
 
         // Refresh incoming requests to get updated list from backend
         try {
@@ -359,15 +351,16 @@ export const useFriendingStore = defineStore('friending', {
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to reject friend request'
         console.error('Error rejecting friend request:', error)
-        throw error
-      } finally {
         this.loading = false
+        throw error
       }
     },
 
     async removeFriend(friendUsername: string) {
       const auth = useAuthStore()
-      if (!auth.user) {
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
         throw new Error('Not authenticated')
       }
 
@@ -381,13 +374,16 @@ export const useFriendingStore = defineStore('friending', {
 
       try {
         const result = await FriendingService.endFriendship({
-          user: auth.user.username,
+          session: sessionId,
           friend: friendUsername
         })
 
         if (result.error) {
           throw new Error(result.error)
         }
+
+        // Reset loading before fetching
+        this.loading = false
 
         // Refresh friends list to get updated list from backend
         try {
@@ -398,9 +394,8 @@ export const useFriendingStore = defineStore('friending', {
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to remove friend'
         console.error('Error removing friend:', error)
-        throw error
-      } finally {
         this.loading = false
+        throw error
       }
     },
 

@@ -1,12 +1,19 @@
 <template>
   <div class="friends-page">
     <div class="friends-page__container">
-      <div class="friends-page__header">
-        <h1 class="friends-page__title">Friends</h1>
+      <!-- Badge and Form Row (Centered) -->
+      <div class="friends-page__header-section">
+        <div v-if="friends.length" class="friends-page__count-badge">
+          <div class="count-badge__number">{{ friends.length }}</div>
+          <div class="count-badge__label">Friends</div>
+        </div>
+        <div class="friends-page__form-wrapper">
+          <FriendRequestForm />
+        </div>
       </div>
 
-      <!-- Requests and Form Row -->
-      <div class="friends-page__top-section">
+      <!-- Requests Row -->
+      <div class="friends-page__requests-section">
         <!-- Friend Requests - Side by Side -->
         <div class="friends-page__requests">
           <!-- Incoming Requests -->
@@ -18,7 +25,10 @@
               :class="{ 'friends-page__dropdown-header--open': isIncomingOpen }"
             >
               <span class="friends-page__dropdown-title">
-                Incoming Requests
+                <svg class="friends-page__arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <polyline points="19 12 12 19 5 12"></polyline>
+                </svg>
                 <span v-if="incomingRequests.length" class="friends-page__badge">
                   {{ incomingRequests.length }}
                 </span>
@@ -77,7 +87,11 @@
               :class="{ 'friends-page__dropdown-header--open': isOutgoingOpen }"
             >
               <span class="friends-page__dropdown-title">
-                Outgoing Requests
+
+                <svg class="friends-page__arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="19" x2="12" y2="5"></line>
+                  <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
                 <span v-if="outgoingRequests.length" class="friends-page__badge">
                   {{ outgoingRequests.length }}
                 </span>
@@ -114,22 +128,10 @@
             </div>
           </div>
         </div>
-
-        <!-- Send Friend Request Form -->
-        <div class="friends-page__form-column">
-          <FriendRequestForm />
-        </div>
       </div>
 
       <!-- Friends List -->
       <div class="friends-page__section">
-        <h2 class="friends-page__section-title">
-          My Friends
-          <span v-if="friends.length" class="friends-page__badge">
-            {{ friends.length }}
-          </span>
-        </h2>
-
         <div v-if="!friends.length" class="friends-page__empty">
           <p>You don't have any friends yet</p>
         </div>
@@ -245,23 +247,47 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-.friends-page__header {
-  text-align: left;
+/* Header Section: Badge and Form (Centered) */
+.friends-page__header-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
   margin-bottom: 2rem;
 }
 
-.friends-page__title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #374151;
-  margin: 0;
+.friends-page__count-badge {
+  background: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 80px;
+  flex-shrink: 0;
 }
 
-/* Top Section: Requests and Form */
-.friends-page__top-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr 350px;
-  gap: 1.5rem;
+.count-badge__number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff6b6b;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.count-badge__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.friends-page__form-wrapper {
+  flex-shrink: 0;
+}
+
+/* Requests Section */
+.friends-page__requests-section {
   margin-bottom: 2rem;
 }
 
@@ -270,26 +296,10 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
-  grid-column: span 2;
-}
-
-.friends-page__form-column {
-  display: flex;
-  align-items: start;
 }
 
 .friends-page__section {
   margin-bottom: 2rem;
-}
-
-.friends-page__section-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .friends-page__badge {
@@ -432,6 +442,11 @@ onMounted(() => {
   gap: 0.5rem;
 }
 
+.friends-page__arrow-icon {
+  flex-shrink: 0;
+  color: #ff6b6b;
+}
+
 .friends-page__dropdown-icon {
   font-size: 0.875rem;
   color: #6b7280;
@@ -539,21 +554,13 @@ onMounted(() => {
     padding: 1rem;
   }
 
-  .friends-page__title {
-    font-size: 2rem;
-  }
-
-  .friends-page__top-section {
-    grid-template-columns: 1fr;
+  .friends-page__header-section {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .friends-page__requests {
     grid-template-columns: 1fr;
-    grid-column: span 1;
-  }
-
-  .friends-page__form-column {
-    width: 100%;
   }
 
   .friends-page__grid {

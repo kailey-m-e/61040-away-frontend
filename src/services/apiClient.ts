@@ -10,7 +10,7 @@ const API_BASE_URL = _envBase ? _envBase.replace(/\/$/, '') : ''
 // axios will send requests to the same origin (useful for dev proxy).
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL || undefined,
-  timeout: 10000,
+  timeout: 30000, // Increased to 30 seconds for slow backend
   headers: {
     'Content-Type': 'application/json',
   },
@@ -38,13 +38,24 @@ apiClient.interceptors.response.use(
     return response
   },
   (error) => {
+    // Silently ignore cancelled/aborted requests in development
+    if (axios.isCancel(error) || error.code === 'ECONNABORTED') {
+      return Promise.reject(error)
+    }
+
     // Handle common errors here
     if (error.response?.status === 401) {
-      // Handle unauthorized access
-      console.error('Unauthorized access')
+      // Handle unauthorized access - session expired or invalid
+      console.error('Unauthorized access - session may have expired')
+
+      // Trigger logout by dispatching a custom event that the auth store can listen to
+      // We use an event to avoid circular dependencies between apiClient and auth store
+      if (typeof globalThis !== 'undefined' && globalThis.dispatchEvent) {
+        globalThis.dispatchEvent(new CustomEvent('auth:unauthorized'))
+      }
     } else if (error.response?.status === 500) {
       // Handle server errors
-      console.error('Server error')
+      console.error('Server error:', error.response?.data)
     }
     return Promise.reject(error)
   }

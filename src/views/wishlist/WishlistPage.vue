@@ -1,10 +1,6 @@
 <template>
   <div class="wishlist-page">
     <div class="wishlist-page__container">
-      <div class="wishlist-page__header">
-        <h1 class="wishlist-page__title">Wishlist</h1>
-      </div>
-
       <!-- Add Place Form -->
       <div class="wishlist-page__form">
         <WishlistPlaceForm @added="loadPlaces" />
@@ -94,24 +90,7 @@ onMounted(() => {
 .wishlist-page__container {
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.wishlist-page__header {
-  text-align: left;
-  margin-bottom: 2rem;
-}
-
-.wishlist-page__title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #374151;
-  margin: 0 0 0.5rem 0;
-}
-
-.wishlist-page__subtitle {
-  font-size: 1.125rem;
-  color: #6b7280;
-  margin: 0;
+  margin-top: 2rem;
 }
 
 .wishlist-page__form {
@@ -182,6 +161,7 @@ onMounted(() => {
 
 .wishlist-page__grid {
   display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 

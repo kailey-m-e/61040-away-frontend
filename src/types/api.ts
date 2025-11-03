@@ -38,7 +38,7 @@ export interface Post {
 }
 
 export interface CreatePostRequest {
-  creator: string
+  session: string
   title: string
   city: string
   region?: string
@@ -53,7 +53,8 @@ export interface CreatePostResponse {
 }
 
 export interface EditPostRequest {
-  user: string
+  session: string
+  user?: string
   post: string
   title?: string
   city?: string
@@ -69,12 +70,13 @@ export interface EditPostResponse {
 }
 
 export interface DeletePostRequest {
-  user: string
+  session: string
   post: string
 }
 
 export interface GetPostsRequest {
-  user: string
+  session: string
+  friend?: string // Optional: if provided, fetches friend's posts instead of own posts
 }
 
 export interface GetPostsResponse {
@@ -83,27 +85,33 @@ export interface GetPostsResponse {
 
 // Friending API
 export interface FriendActionRequest {
-  user: string
+  session: string
   friend: string
 }
 
 export interface GetIncomingRequestsRequest {
-  user: string
+  session: string
 }
 
-export type GetIncomingRequestsResponse = string[] // Array of user IDs
+export interface GetIncomingRequestsResponse {
+  results: string[] // Array of friend usernames
+}
 
 export interface GetOutgoingRequestsRequest {
-  user: string
+  session: string
 }
 
-export type GetOutgoingRequestsResponse = string[] // Array of user IDs
+export interface GetOutgoingRequestsResponse {
+  results: string[] // Array of friend usernames
+}
 
 export interface GetFriendsRequest {
-  user: string
+  session: string
 }
 
-export type GetFriendsResponse = string[] // Array of user IDs
+export interface GetFriendsResponse {
+  results: string[] // Array of friend usernames
+}
 
 // Wishlist API
 export interface WishlistPlace {
@@ -115,25 +123,25 @@ export interface WishlistPlace {
 }
 
 export interface AddPlaceRequest {
-  user: string
+  session: string
   city: string
   region: string
   country: string
 }
 
 export interface AddPlaceResponse {
-  place: string
+  place: WishlistPlace
 }
 
 export interface RemovePlaceRequest {
-  user: string
+  session: string
   place: string
 }
 
 export interface GetPlacesRequest {
-  user: string
+  session: string
 }
 
 export interface GetPlacesResponse {
-  places: WishlistPlace[]
+  results: WishlistPlace[]
 }

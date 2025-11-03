@@ -29,30 +29,44 @@ export class UserAuthenticationService {
 
   /**
    * Authenticate a user
+   * Calls the UserAuthentication.authenticate endpoint directly
+   * The backend will route this through the Requesting system via passthrough
    */
   static async authenticate(data: AuthenticateRequest): Promise<ApiResponse<AuthenticateResponse>> {
     try {
-      const response = await apiClient.post('/api/UserAuthentication/authenticate', data)
+      console.log('Sending authentication request with data:', { username: data.username, password: '[REDACTED]' })
+
+      // Call the authentication endpoint directly
+      // The backend will add the path automatically from the URL
+      // Only send username and password to match the sync pattern
+      const response = await apiClient.post('/api/UserAuthentication/authenticate', {
+        username: data.username,
+        password: data.password
+      })
 
       // Log the response for debugging
-      console.log('Authentication response:', response.data)
+      console.log('Authentication response status:', response.status)
+      console.log('Authentication response data:', response.data)
 
       // Check if the response contains an error field
-      // Backend returns {error: "message"} for failures even with HTTP 200
       if (response.data && 'error' in response.data) {
         return { error: response.data.error as string }
       }
 
-      // Backend returns empty object {} on success
-      // If we get a response without error, consider it success
+      // The response should contain the user ID or session
       return { data: response.data }
-    } catch (error: any) {
-      console.error('Authentication error:', error.response?.data)
+    } catch (error: unknown) {
+      const err = error as { response?: { status?: number; data?: { error?: string; message?: string } }; message?: string }
+
+      console.error('Authentication request failed')
+      console.error('Status:', err.response?.status)
+      console.error('Response data:', err.response?.data)
+      console.error('Error message:', err.message)
 
       // Extract error message from response
-      const errorMessage = error.response?.data?.error ||
-                          error.response?.data?.message ||
-                          error.message ||
+      const errorMessage = err.response?.data?.error ||
+                          err.response?.data?.message ||
+                          err.message ||
                           'Authentication failed'
 
       return { error: errorMessage }

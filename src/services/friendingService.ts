@@ -1,11 +1,8 @@
 import apiClient from './apiClient'
 import type {
   FriendActionRequest,
-  GetIncomingRequestsRequest,
   GetIncomingRequestsResponse,
-  GetOutgoingRequestsRequest,
   GetOutgoingRequestsResponse,
-  GetFriendsRequest,
   GetFriendsResponse,
   ApiResponse,
 } from '@/types/api'
@@ -17,17 +14,30 @@ export class FriendingService {
   static async requestFriend(data: FriendActionRequest): Promise<ApiResponse<Record<string, never>>> {
     try {
       console.log('FriendingService: Sending friend request:', data)
+      console.log('FriendingService: Request URL:', '/api/Friending/requestFriend')
       const response = await apiClient.post('/api/Friending/requestFriend', data)
       console.log('FriendingService: Friend request response:', response.data)
       return { data: response.data }
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { error?: string }, status?: number } }
+      const err = error as { response?: { data?: { error?: string }, status?: number }; message?: string }
       console.error('FriendingService: Friend request error:', {
         status: err.response?.status,
         data: err.response?.data,
-        error
+        message: err.message,
+        fullError: error
       })
-      return { error: err.response?.data?.error || 'Failed to request friend' }
+
+      // Provide more helpful error messages
+      if (err.response?.status === 500) {
+        const errorMsg = err.response?.data?.error || 'An internal server error occurred.'
+        // Check for common backend issues
+        if (errorMsg.includes('null') || errorMsg.includes('undefined')) {
+          return { error: 'Backend error: User may not be initialized in Friending system. Please try logging out and back in.' }
+        }
+        return { error: errorMsg }
+      }
+
+      return { error: err.response?.data?.error || err.message || 'Failed to request friend' }
     }
   }
 
@@ -99,13 +109,49 @@ export class FriendingService {
   /**
    * Get incoming friend requests
    */
-  static async getIncomingRequests(data: GetIncomingRequestsRequest): Promise<ApiResponse<GetIncomingRequestsResponse>> {
+  static async getIncomingRequests(sessionId: string): Promise<ApiResponse<GetIncomingRequestsResponse>> {
     try {
-      console.log('FriendingService: Fetching incoming requests for:', data)
-      // Query endpoints use POST with query parameters
-      const response = await apiClient.post('/api/Friending/_getIncomingRequests', data)
-      console.log('FriendingService: Incoming requests response:', response.data)
-      return { data: response.data }
+      console.log('FriendingService: Fetching incoming requests with session:', sessionId)
+      const response = await apiClient.post('/api/Friending/_getIncomingRequests', { session: sessionId })
+      console.log('FriendingService: Raw incoming requests response:', response.data)
+
+      // Handle the response structure - backend returns { results: [...] }
+      const responseData = response.data
+      let friends: string[] = []
+
+      if (responseData.results && Array.isArray(responseData.results)) {
+        // Backend sync now returns results as array of { friendId, username }
+        // Extract the username from each object
+        friends = responseData.results.map((item: { friendId?: string; username?: string } & Partial<{ username: string }>) => {
+          console.log('FriendingService: Processing incoming request item:', item)
+
+          // The sync collects [friendId, username], so extract username
+          if (item.username && typeof item.username === 'string') {
+            return item.username
+          }
+
+          // Fallback to friendId if username not present
+          if (item.friendId && typeof item.friendId === 'string') {
+            console.warn('FriendingService: No username found, using friendId:', item.friendId)
+            return item.friendId
+          }
+
+          // Last resort: if item is just a string
+          if (typeof item === 'string') {
+            return item
+          }
+
+          console.warn('FriendingService: Could not extract username from item:', item)
+          return String(item)
+        }).filter((username: string) => username && username !== '[object Object]')
+      } else if (Array.isArray(responseData)) {
+        friends = responseData
+      } else {
+        friends = []
+      }
+
+      console.log('FriendingService: Processed incoming requests:', friends)
+      return { data: { results: friends } }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { error?: string } } }
       console.error('FriendingService: Error fetching incoming requests:', err.response?.data)
@@ -116,13 +162,49 @@ export class FriendingService {
   /**
    * Get outgoing friend requests
    */
-  static async getOutgoingRequests(data: GetOutgoingRequestsRequest): Promise<ApiResponse<GetOutgoingRequestsResponse>> {
+  static async getOutgoingRequests(sessionId: string): Promise<ApiResponse<GetOutgoingRequestsResponse>> {
     try {
-      console.log('FriendingService: Fetching outgoing requests for:', data)
-      // Query endpoints use POST with query parameters
-      const response = await apiClient.post('/api/Friending/_getOutgoingRequests', data)
-      console.log('FriendingService: Outgoing requests response:', response.data)
-      return { data: response.data }
+      console.log('FriendingService: Fetching outgoing requests with session:', sessionId)
+      const response = await apiClient.post('/api/Friending/_getOutgoingRequests', { session: sessionId })
+      console.log('FriendingService: Raw outgoing requests response:', response.data)
+
+      // Handle the response structure - backend returns { results: [...] }
+      const responseData = response.data
+      let friends: string[] = []
+
+      if (responseData.results && Array.isArray(responseData.results)) {
+        // Backend sync now returns results as array of { friendId, username }
+        // Extract the username from each object
+        friends = responseData.results.map((item: { friendId?: string; username?: string } & Partial<{ username: string }>) => {
+          console.log('FriendingService: Processing outgoing request item:', item)
+
+          // The sync collects [friendId, username], so extract username
+          if (item.username && typeof item.username === 'string') {
+            return item.username
+          }
+
+          // Fallback to friendId if username not present
+          if (item.friendId && typeof item.friendId === 'string') {
+            console.warn('FriendingService: No username found, using friendId:', item.friendId)
+            return item.friendId
+          }
+
+          // Last resort: if item is just a string
+          if (typeof item === 'string') {
+            return item
+          }
+
+          console.warn('FriendingService: Could not extract username from item:', item)
+          return String(item)
+        }).filter((username: string) => username && username !== '[object Object]')
+      } else if (Array.isArray(responseData)) {
+        friends = responseData
+      } else {
+        friends = []
+      }
+
+      console.log('FriendingService: Processed outgoing requests:', friends)
+      return { data: { results: friends } }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { error?: string } } }
       console.error('FriendingService: Error fetching outgoing requests:', err.response?.data)
@@ -133,13 +215,49 @@ export class FriendingService {
   /**
    * Get friends list
    */
-  static async getFriends(data: GetFriendsRequest): Promise<ApiResponse<GetFriendsResponse>> {
+  static async getFriends(sessionId: string): Promise<ApiResponse<GetFriendsResponse>> {
     try {
-      console.log('FriendingService: Fetching friends for:', data)
-      // Query endpoints use POST with query parameters
-      const response = await apiClient.post('/api/Friending/_getFriends', data)
-      console.log('FriendingService: Friends response:', response.data)
-      return { data: response.data }
+      console.log('FriendingService: Fetching friends with session:', sessionId)
+      const response = await apiClient.post('/api/Friending/_getFriends', { session: sessionId })
+      console.log('FriendingService: Raw friends response:', response.data)
+
+      // Handle the response structure - backend returns { results: [...] }
+      const responseData = response.data
+      let friends: string[] = []
+
+      if (responseData.results && Array.isArray(responseData.results)) {
+        // Backend sync now returns results as array of { friendId, username }
+        // Extract the username from each object
+        friends = responseData.results.map((item: { friendId?: string; username?: string } & Partial<{ username: string }>) => {
+          console.log('FriendingService: Processing friend item:', item)
+
+          // The sync collects [friendId, username], so extract username
+          if (item.username && typeof item.username === 'string') {
+            return item.username
+          }
+
+          // Fallback to friendId if username not present
+          if (item.friendId && typeof item.friendId === 'string') {
+            console.warn('FriendingService: No username found, using friendId:', item.friendId)
+            return item.friendId
+          }
+
+          // Last resort: if item is just a string
+          if (typeof item === 'string') {
+            return item
+          }
+
+          console.warn('FriendingService: Could not extract username from item:', item)
+          return String(item)
+        }).filter((username: string) => username && username !== '[object Object]')
+      } else if (Array.isArray(responseData)) {
+        friends = responseData
+      } else {
+        friends = []
+      }
+
+      console.log('FriendingService: Processed friends:', friends)
+      return { data: { results: friends } }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { error?: string } } }
       console.error('FriendingService: Error fetching friends:', err.response?.data)

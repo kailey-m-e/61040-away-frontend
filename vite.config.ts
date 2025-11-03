@@ -14,7 +14,17 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
-        changeOrigin: true
+        changeOrigin: true,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            // Suppress abort errors in development - these are normal when HMR reloads
+            const nodeErr = err as NodeJS.ErrnoException
+            if (err.message?.includes('aborted') || nodeErr.code === 'ECONNRESET') {
+              return
+            }
+            console.log('proxy error', err)
+          })
+        }
       }
     }
   }

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { WishlistService } from '@/services/wishlistService'
 import { useAuthStore } from './auth'
-import type { WishlistPlace, GetPlacesResponse } from '@/types/api'
+import type { WishlistPlace } from '@/types/api'
 
 interface WishlistState {
   places: WishlistPlace[]
@@ -25,31 +25,44 @@ export const useWishlistStore = defineStore('wishlist', {
   actions: {
     async fetchPlaces() {
       const auth = useAuthStore()
-      if (!auth.user) {
-        console.warn('wishlistStore.fetchPlaces: no authenticated user - aborting')
-        throw new Error('Not authenticated')
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
+        console.warn('wishlistStore.fetchPlaces: no session - aborting')
+        this.error = 'Not authenticated'
+        return
+      }
+
+      // If already loading, skip duplicate request
+      if (this.loading) {
+        console.log('Already loading wishlist places, skipping duplicate request')
+        return
       }
 
       this.loading = true
       this.error = null
 
       try {
-        console.log('Fetching places for user:', auth.user.username)
-        const result = await WishlistService.getPlaces({ user: auth.user.username })
+        console.log('Fetching places with session:', sessionId)
+        const result = await WishlistService.getPlaces(sessionId)
         console.log('Fetch places result:', result)
+        console.log('Result data type:', typeof result.data)
+        console.log('Result data keys:', result.data ? Object.keys(result.data) : 'null')
 
         if (result.error) {
           throw new Error(result.error)
         }
 
-        // Handle the response - backend returns an array directly
-        if (Array.isArray(result.data)) {
+        // Backend returns { results: WishlistPlace[] }
+        if (result.data && 'results' in result.data) {
+          console.log('Response has results property:', result.data.results)
+          console.log('Results length:', result.data.results?.length)
+          this.places = result.data.results.filter((place: WishlistPlace) => place._id && place.city)
+          console.log('Filtered places:', this.places)
+        } else if (Array.isArray(result.data)) {
+          // Fallback for direct array response
           console.log('Response is array:', result.data)
-          this.places = result.data.filter((place: WishlistPlace) => place._id && place.city)
-        } else if (result.data && 'places' in result.data) {
-          console.log('Response has places property:', result.data)
-          const response = result.data as GetPlacesResponse
-          this.places = response.places.filter((place: WishlistPlace) => place._id && place.city)
+          this.places = (result.data as WishlistPlace[]).filter((place: WishlistPlace) => place._id && place.city)
         } else {
           console.error('Unexpected response format:', result.data)
           this.places = []
@@ -66,8 +79,10 @@ export const useWishlistStore = defineStore('wishlist', {
 
     async addPlace(city: string, region: string, country: string) {
       const auth = useAuthStore()
-      if (!auth.user) {
-        console.warn('wishlistStore.addPlace: no authenticated user - aborting')
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
+        console.warn('wishlistStore.addPlace: no session - aborting')
         throw new Error('Not authenticated')
       }
 
@@ -76,7 +91,7 @@ export const useWishlistStore = defineStore('wishlist', {
 
       try {
         const result = await WishlistService.addPlace({
-          user: auth.user.username,
+          session: sessionId,
           city,
           region,
           country
@@ -86,20 +101,25 @@ export const useWishlistStore = defineStore('wishlist', {
           throw new Error(result.error)
         }
 
+        // Reset loading before fetching to avoid the duplicate request check
+        this.loading = false
+
         // Re-fetch the full list to ensure consistent state
         await this.fetchPlaces()
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to add place'
         console.error('Error adding place:', error)
-      } finally {
         this.loading = false
+        throw error
       }
     },
 
     async removePlace(placeId: string) {
       const auth = useAuthStore()
-      if (!auth.user) {
-        console.warn('wishlistStore.removePlace: no authenticated user - aborting')
+      const sessionId = auth.sessionId
+
+      if (!sessionId) {
+        console.warn('wishlistStore.removePlace: no session - aborting')
         throw new Error('Not authenticated')
       }
 
@@ -107,19 +127,27 @@ export const useWishlistStore = defineStore('wishlist', {
       this.error = null
 
       try {
+        console.log('Removing place with ID:', placeId)
+        console.log('Using session:', sessionId)
         const result = await WishlistService.removePlace({
-          user: auth.user.username,
+          session: sessionId,
           place: placeId
         })
+        console.log('Remove place result:', result)
         if (result.error) {
           throw new Error(result.error)
         }
+        console.log('Place removed successfully, refreshing list...')
+
+        // Reset loading state before fetching to avoid the duplicate request check
+        this.loading = false
         await this.fetchPlaces() // Refresh the list
+        console.log('List refreshed after removal')
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to remove place'
         console.error('Error removing place:', error)
-      } finally {
         this.loading = false
+        throw error
       }
     }
   }

@@ -7,7 +7,7 @@
           v-model="username"
           type="text"
           class="friend-request-form__input"
-          placeholder="Enter username"
+          placeholder="Username"
           required
         />
       </div>
@@ -18,7 +18,7 @@
         :disabled="loading || !username.trim()"
       >
         <span v-if="loading" class="loading-spinner-small"></span>
-        {{ loading ? 'Sending...' : 'Send Request' }}
+        {{ loading ? 'Sending...' : 'Request' }}
       </button>
     </div>
 

@@ -74,11 +74,14 @@ class PostsApi {
     })
   }
 
-  async getPosts(userId: string): Promise<Post[]> {
-    return this.makeRequest(API_ENDPOINTS.POSTING.GET_POSTS, {
+  async getPosts(): Promise<Post[]> {
+    // Backend now uses session-based auth; no need to pass user ID explicitly
+    const response = await this.makeRequest(API_ENDPOINTS.POSTING.GET_POSTS, {
       method: 'POST',
-      body: JSON.stringify({ user: userId }),
+      body: JSON.stringify({}),
     })
+    // Backend returns { results: [...] } from the sync
+    return response.results || response || []
   }
 
   async deletePost(userId: string, postId: string): Promise<void> {

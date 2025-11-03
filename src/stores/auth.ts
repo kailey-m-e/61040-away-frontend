@@ -1,16 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { UserAuthenticationService } from '@/services'
+import { UserAuthenticationService, SessioningService } from '@/services'
 import type { User, AuthState, LoginForm, RegisterForm } from '@/types'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
   const user = ref<User | null>(null)
+  const sessionId = ref<string | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
   // Getters
-  const isAuthenticated = computed(() => !!user.value)
+  const isAuthenticated = computed(() => !!user.value && !!sessionId.value)
   const username = computed(() => user.value?.username || null)
 
   // Actions
@@ -43,18 +44,43 @@ export const useAuthStore = defineStore('auth', () => {
 
       console.log('Authentication successful for user:', credentials.username)
 
-      // On successful authentication, set the user
-      // Note: The API doesn't return user data on authentication,
-      // so we'll create a minimal user object with the username
-      user.value = {
-        _id: credentials.username, // Using username as ID for now
-        username: credentials.username,
+      // The LoginResponseSuccess sync responds with { session: "ID" }
+      const authData = response.data as Record<string, unknown>
+      console.log('Auth response keys:', Object.keys(authData))
+      console.log('Full auth response:', JSON.stringify(authData, null, 2))
+
+      // Extract session from the response
+      if ('session' in authData && typeof authData.session === 'string') {
+        sessionId.value = authData.session
+        console.log('Session ID received from LoginResponseSuccess:', sessionId.value)
+      } else {
+        console.error('No session in response! LoginResponseSuccess may have failed')
+        error.value = 'Authentication succeeded but no session was created'
+        throw new Error('Authentication succeeded but no session was created')
+      }
+
+      // Extract user ID from the response
+      if ('user' in authData && typeof authData.user === 'string') {
+        // Use the actual user ID from backend
+        user.value = {
+          _id: authData.user,  // ✅ Actual user ID
+          username: credentials.username,
+        }
+        console.log('User ID received from backend:', authData.user)
+      } else {
+        console.error('No user ID in response!')
+        error.value = 'Authentication succeeded but no user ID returned'
+        throw new Error('Authentication succeeded but no user ID returned')
       }
 
       // Store authentication state in localStorage
       localStorage.setItem('authUser', JSON.stringify(user.value))
-    } catch (err: any) {
-      error.value = err.message || 'Login failed'
+      if (sessionId.value) {
+        localStorage.setItem('sessionId', sessionId.value)
+      }
+    } catch (err: unknown) {
+      const errorObj = err as Error
+      error.value = errorObj.message || 'Login failed'
       console.error('Login error:', err)
       throw err
     } finally {
@@ -77,18 +103,14 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error(response.error)
       }
 
-      // On successful registration, set the user
+      // Registration successful - user needs to log in separately
       if (response.data?.user) {
-        user.value = {
-          _id: response.data.user,
-          username: userData.username,
-        }
-
-        // Store authentication state in localStorage
-        localStorage.setItem('authUser', JSON.stringify(user.value))
+        console.log('Registration successful for user:', userData.username)
+        // Don't automatically log in - let the user do it manually
       }
-    } catch (err: any) {
-      error.value = err.message || 'Registration failed'
+    } catch (err: unknown) {
+      const errorObj = err as Error
+      error.value = errorObj.message || 'Registration failed'
       throw err
     } finally {
       isLoading.value = false
@@ -96,9 +118,20 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const logout = (): void => {
+    // Try to delete the session on the backend (don't wait for it)
+    if (sessionId.value) {
+      // Fire and forget - don't block logout on backend response
+      SessioningService.deleteSession(sessionId.value).catch((err) => {
+        console.error('Failed to delete session on server:', err)
+      })
+    }
+
+    // Immediately clear local state
     user.value = null
+    sessionId.value = null
     error.value = null
     localStorage.removeItem('authUser')
+    localStorage.removeItem('sessionId')
 
     // Clear other stores on logout
     // Import and clear friending store
@@ -130,13 +163,34 @@ export const useAuthStore = defineStore('auth', () => {
   const initializeAuth = (): void => {
     try {
       const storedUser = localStorage.getItem('authUser')
-      if (storedUser) {
+      const storedSessionId = localStorage.getItem('sessionId')
+
+      if (storedUser && storedSessionId) {
         user.value = JSON.parse(storedUser)
+        sessionId.value = storedSessionId
+        console.log('Restored authentication state from localStorage')
+
+        // Note: We don't validate the session here because _getUser times out.
+        // The session will be validated implicitly when making authenticated requests.
+        // If the session is invalid, the 401 interceptor will handle logout.
       }
     } catch (err) {
       console.error('Failed to initialize auth state:', err)
       localStorage.removeItem('authUser')
+      localStorage.removeItem('sessionId')
+      user.value = null
+      sessionId.value = null
     }
+  }
+
+  // Listen for 401 unauthorized events from apiClient
+  // This handles automatic logout when session expires
+  if (typeof globalThis !== 'undefined' && globalThis.addEventListener) {
+    globalThis.addEventListener('auth:unauthorized', () => {
+      console.warn('Received unauthorized event - logging out')
+      // Use void operator to handle the promise without awaiting
+      void logout()
+    })
   }
 
   // Auto-initialize on store creation
@@ -145,6 +199,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     // State
     user,
+    sessionId,
     isLoading,
     error,
 

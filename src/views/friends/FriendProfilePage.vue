@@ -115,12 +115,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { PostingService } from '@/services/postingService'
 import { WishlistService } from '@/services/wishlistService'
 import { useFriendingStore } from '@/stores/friendingStore'
+import { useAuthStore } from '@/stores/auth'
 import type { Post } from '@/types'
 import type { WishlistPlace } from '@/types/api'
 
 const route = useRoute()
 const router = useRouter()
 const friendingStore = useFriendingStore()
+const authStore = useAuthStore()
 
 const friendUsername = computed(() => route.params.username as string)
 const posts = ref<Post[]>([])
@@ -170,39 +172,48 @@ const loadData = async () => {
   error.value = null
 
   try {
-    // Load posts and wishlist in parallel
-    const [postsResult, wishlistResult] = await Promise.all([
-      PostingService.getPosts({ user: friendUsername.value }),
-      WishlistService.getPlaces({ user: friendUsername.value })
-    ])
+    const sessionId = authStore.sessionId
+    if (!sessionId) {
+      throw new Error('Not authenticated')
+    }
+
+    // Fetch friend's posts using the GetFriendPostsRequest sync
+    console.log('=== FriendProfilePage: Loading data for friend ===')
+    console.log('FriendProfilePage: Friend username:', friendUsername.value)
+    console.log('FriendProfilePage: Session ID:', sessionId)
+    console.log('FriendProfilePage: Calling PostingService.getPosts with friend parameter')
+
+    const postsResult = await PostingService.getPosts({
+      session: sessionId,
+      friend: friendUsername.value // This should trigger GetFriendPostsRequest sync
+    })
+
+    console.log('FriendProfilePage: Posts result:', postsResult)
 
     // Handle posts
     if (postsResult.error) {
       throw new Error(postsResult.error)
     }
     posts.value = postsResult.data?.posts || []
+    console.log('FriendProfilePage: Loaded friend posts:', posts.value)
+    console.log('FriendProfilePage: Number of posts:', posts.value.length)
 
-    // Handle wishlist
-    if (wishlistResult.error) {
-      console.warn('Error loading wishlist:', wishlistResult.error)
-      wishlistPlaces.value = []
-    } else {
-      // Handle both object and array responses
-      let places: WishlistPlace[] = []
-      if (Array.isArray(wishlistResult.data)) {
-        places = wishlistResult.data
-      } else if (wishlistResult.data && 'places' in wishlistResult.data) {
-        places = wishlistResult.data.places || []
+    if (posts.value.length > 0) {
+      console.log('FriendProfilePage: First post creator:', posts.value[0].creator)
+      console.log('FriendProfilePage: Current user ID:', authStore.user?._id)
+      console.log('FriendProfilePage: Friend username we requested:', friendUsername.value)
+      if (posts.value[0].creator === authStore.user?._id) {
+        console.error('❌ ERROR: Showing current user\'s posts instead of friend\'s posts!')
+      } else {
+        console.log('✅ SUCCESS: Showing friend\'s posts (creator ID is different from current user)')
       }
-
-      // Filter out any invalid entries (missing city, region, or country)
-      wishlistPlaces.value = places.filter(place =>
-        place && place.city && place.region && place.country
-      )
     }
+
+    // Clear wishlist since backend doesn't support viewing other users' wishlists yet
+    wishlistPlaces.value = []
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load profile'
-    console.error('Error loading friend profile:', err)
+    console.error('FriendProfilePage: Error loading friend profile:', err)
   } finally {
     loading.value = false
   }
