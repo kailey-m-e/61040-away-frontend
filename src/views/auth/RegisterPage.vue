@@ -1,10 +1,13 @@
 <template>
   <div class="register-page">
-    <div class="register-page__container">
-      <h1>Register</h1>
-      <p>Create your account</p>
+    <div class="register-page__left">
+      <img src="@/assets/awayLogo.png" alt="Away Logo" class="register-page__logo" />
+    </div>
+    <div class="register-page__right">
+      <div class="register-page__container">
+        <h1 class="register-page__title">Sign Up</h1>
 
-      <form @submit.prevent="handleSubmit" class="register-form">
+        <form @submit.prevent="handleSubmit" class="register-form">
         <div class="form-group">
           <label for="username">Username</label>
           <input
@@ -48,9 +51,10 @@
 
         <p class="register-page__login-link">
           Already have an account?
-          <router-link to="/login">Sign in</router-link>
+          <router-link to="/login">Login</router-link>
         </p>
       </form>
+      </div>
     </div>
   </div>
 </template>
@@ -99,19 +103,56 @@ const handleSubmit = async () => {
 .register-page {
   min-height: 100vh;
   display: flex;
+  flex-direction: row;
+}
+
+.register-page__left {
+  flex: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
   background: white;
-  padding: 1rem;
+  padding: 2rem;
+}
+
+.register-page__logo {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+}
+
+.register-page__right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  padding: 2rem;
 }
 
 .register-page__container {
-  background: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .register-page {
+    flex-direction: column;
+  }
+
+  .register-page__left {
+    min-height: 30vh;
+  }
+
+  .register-page__logo {
+    max-width: 250px;
+  }
+
+  .register-page__right {
+    flex: 1;
+  }
 }
 
 h1 {
@@ -176,6 +217,10 @@ button:hover:not(:disabled) {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.register-page__title {
+  margin-bottom: 2rem;
 }
 
 .register-page__login-link {

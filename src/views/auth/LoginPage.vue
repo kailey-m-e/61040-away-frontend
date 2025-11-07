@@ -1,10 +1,12 @@
 <template>
   <div class="login-page">
-    <div class="login-page__container">
-      <h1>Login</h1>
-      <p>Sign in to your account</p>
-
-      <form @submit.prevent="handleSubmit" class="login-form">
+    <div class="login-page__left">
+      <img src="@/assets/awayLogo.png" alt="Away Logo" class="login-page__logo" />
+    </div>
+    <div class="login-page__right">
+      <div class="login-page__container">
+        <h1 class="login-page__title">Login</h1>
+        <form @submit.prevent="handleSubmit" class="login-form">
         <div class="form-group">
           <label for="username">Username</label>
           <input
@@ -37,9 +39,10 @@
 
         <p class="login-page__register-link">
           Don't have an account?
-          <router-link to="/register">Register</router-link>
+          <router-link to="/register">Sign up</router-link>
         </p>
       </form>
+      </div>
     </div>
   </div>
 </template>
@@ -80,19 +83,55 @@ const handleSubmit = async () => {
 .login-page {
   min-height: 100vh;
   display: flex;
+  flex-direction: row;
+}
+
+.login-page__left {
+  flex: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
   background: white;
-  padding: 1rem;
+  padding: 2rem;
+}
+
+.login-page__logo {
+  display: block;
+  max-width: 400px;
+  height: auto;
+}
+
+.login-page__right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  padding: 2rem;
 }
 
 .login-page__container {
-  background: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .login-page {
+    flex-direction: column;
+  }
+
+  .login-page__left {
+    min-height: 30vh;
+  }
+
+  .login-page__logo {
+    max-width: 250px;
+  }
+
+  .login-page__right {
+    flex: 1;
+  }
 }
 
 h1 {
@@ -155,6 +194,10 @@ button:hover:not(:disabled) {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.login-page__title {
+  margin-bottom: 2rem;
 }
 
 .login-page__register-link {

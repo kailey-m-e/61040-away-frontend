@@ -259,7 +259,7 @@ const handleSubmit = async () => {
     await postStore.editPostDescription(postId, form.description.trim())
 
     // Show success and redirect
-    alert('Post updated successfully!')
+    // alert('Post updated successfully!')
     router.push('/postcards')
   } catch (err) {
     console.error('Error updating post:', err)

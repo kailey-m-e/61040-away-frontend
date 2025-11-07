@@ -41,7 +41,6 @@
             <div v-if="isIncomingOpen" class="friends-page__dropdown-content" key="incoming-content">
               <div v-if="loading && !incomingRequests.length" class="friends-page__loading">
                 <div class="loading-spinner"></div>
-                <p>Loading requests...</p>
               </div>
 
               <div v-else-if="!incomingRequests.length" class="friends-page__empty">
@@ -132,8 +131,20 @@
 
       <!-- Friends List -->
       <div class="friends-page__section">
+
         <div v-if="!friends.length" class="friends-page__empty">
-          <p>You don't have any friends yet</p>
+          <div class="empty-state">
+            <svg class="empty-state__icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <h3 class="empty-state__title">No friends yet...</h3>
+            <p class="empty-state__description">
+              Find another traveler!
+            </p>
+          </div>
         </div>
 
         <div v-else class="friends-page__friends-grid">
@@ -315,19 +326,35 @@ onMounted(() => {
 
 .friends-page__loading,
 .friends-page__empty {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 2rem;
   text-align: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .friends-page__loading {
   color: #6b7280;
 }
 
-.friends-page__empty {
-  color: #9ca3af;
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  margin-top: 3rem;
+}
+
+.empty-state__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state__description {
+    color: #6b7280;
+}
+
+.empty-state__icon {
+  width: 64px;
+  height: 64px;
+  color: #d1d5db;
+  margin: 0 auto 1rem;
 }
 
 .loading-spinner {

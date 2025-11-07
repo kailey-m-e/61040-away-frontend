@@ -46,7 +46,7 @@
           :disabled="loading"
         >
           <span v-if="loading" class="loading-spinner-small"></span>
-          {{ loading ? 'Adding...' : 'Add to Wishlist' }}
+          {{ loading ? 'Adding...' : 'Add' }}
         </button>
       </div>
     </div>
@@ -118,7 +118,7 @@ const handleSubmit = async () => {
 .place-form {
   background: white;
   border-radius: 0.75rem;
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 

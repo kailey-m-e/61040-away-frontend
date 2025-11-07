@@ -18,7 +18,7 @@
         <slot name="footer">
           <p class="auth-layout__footer-text">
             Already have an account?
-            <router-link to="/login" class="auth-layout__link">Sign in</router-link>
+            <router-link to="/login" class="auth-layout__link">Login</router-link>
           </p>
         </slot>
       </div>

@@ -43,21 +43,19 @@
 
         <div v-else-if="loading" class="my-posts-page__loading">
           <div class="loading-spinner"></div>
-          <p>Loading your posts...</p>
         </div>
 
         <div v-else-if="posts.length === 0" class="my-posts-page__empty">
           <div class="empty-state">
-            <svg class="empty-state__icon" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+            <svg class="empty-state__icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7.5L12 2l9 5.5M21 7.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5"></path>
+              <path d="M3 7.5l9 5.5 9-5.5"></path>
+              <rect x="9" y="12" width="6" height="5" rx="1"></rect>
             </svg>
-            <h3 class="empty-state__title">No posts yet</h3>
+            <h3 class="empty-state__title">No posts yet...</h3>
             <p class="empty-state__description">
-              You haven't created any posts yet.
+              Your first post awaits!
             </p>
-            <button @click="handleCreatePost" class="empty-state__button">
-              Create your first post
-            </button>
           </div>
         </div>
 
@@ -309,6 +307,7 @@ onMounted(async () => {
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
+  margin-top: 3rem;
 }
 
 @keyframes spin {
@@ -319,6 +318,7 @@ onMounted(async () => {
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
+  margin-top: 3rem;
 }
 
 .empty-state__icon {

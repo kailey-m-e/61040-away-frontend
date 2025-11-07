@@ -85,7 +85,6 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   title: 'Posts',
   emptyMessage: 'No posts found',
-  emptyActionText: 'Create your first post',
   showActions: true,
   hasMore: false,
 })

@@ -10,7 +10,6 @@
         </button>
 
         <div class="create-post-page__title-section">
-          <h1 class="create-post-page__title">New Postcard</h1>
         </div>
       </div>
 
@@ -232,7 +231,7 @@ const handleSubmit = async () => {
     await postStore.createPost(postData)
 
     // Show success and redirect
-    alert('Post created successfully!')
+    // alert('Post created successfully!')
     router.push('/postcards')
   } catch (error) {
     console.error('Error creating post:', error)

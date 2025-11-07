@@ -147,11 +147,6 @@ const handleLogout = () => {
   font-size: 0.875rem;
 }
 
-.user-menu__email {
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
 .user-menu__divider {
   height: 1px;
   background-color: #e5e7eb;

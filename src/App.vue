@@ -1,106 +1,75 @@
 <template>
   <div id="app">
-    <!-- Top bar with hamburger and logo -->
-    <div class="top-bar">
-      <button @click="toggleSidebar" class="hamburger-button" aria-label="Toggle navigation">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-      <div class="top-bar__logo">away</div>
-
-      <!-- Current page indicator -->
-      <div v-if="currentPageInfo" class="top-bar__current-page">
-        <svg class="top-bar__page-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="currentPageInfo.icon"></svg>
-        <span class="top-bar__page-name">{{ currentPageInfo.name }}</span>
-      </div>
-    </div>
-
-    <!-- Sidebar overlay -->
-    <div v-if="sidebarOpen" class="sidebar-overlay" @click="closeSidebar"></div>
-
-    <!-- Collapsible sidebar -->
-    <nav class="sidebar" :class="{ 'sidebar--open': sidebarOpen }">
-      <div class="sidebar__header">
-        <RouterLink to="/" class="sidebar__logo" @click="closeSidebar">
-          away
+    <!-- Top navigation bar -->
+    <nav v-if="showNavbar" class="top-nav">
+      <div class="top-nav__brand">
+        <RouterLink to="/" class="top-nav__logo">
+          <img src="./assets/awayLogo.png" alt="away logo" width="120">
         </RouterLink>
       </div>
 
-      <div class="sidebar__nav">
-        <template v-if="isAuthenticated">
-          <RouterLink to="/postcards" class="sidebar__link" @click="closeSidebar">
-            <svg class="sidebar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 7.5L12 2l9 5.5M21 7.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5"></path>
-              <path d="M3 7.5l9 5.5 9-5.5"></path>
-              <rect x="9" y="12" width="6" height="5" rx="1"></rect>
-            </svg>
-            Postcards
-          </RouterLink>
-          <RouterLink to="/wishlist" class="sidebar__link" @click="closeSidebar">
-            <svg class="sidebar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-            Wishlist
-          </RouterLink>
-          <RouterLink to="/friends" class="sidebar__link" @click="closeSidebar">
-            <svg class="sidebar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-            Friends
-          </RouterLink>
-        </template>
+      <div v-if="isAuthenticated" class="top-nav__links">
+        <RouterLink
+          to="/postcards"
+          class="top-nav__link"
+          :class="{ 'router-link-active': isPostcardsActive }"
+        >
+          <svg class="top-nav__icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7.5L12 2l9 5.5M21 7.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5"></path>
+            <path d="M3 7.5l9 5.5 9-5.5"></path>
+            <rect x="9" y="12" width="6" height="5" rx="1"></rect>
+          </svg>
+          <span class="top-nav__label">Postcards</span>
+        </RouterLink>
+        <RouterLink to="/wishlist" class="top-nav__link">
+          <svg class="top-nav__icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span class="top-nav__label">Wishlist</span>
+        </RouterLink>
+        <RouterLink to="/friends" class="top-nav__link" :class="{ 'router-link-active': isFriendsActive }">
+          <svg class="top-nav__icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span class="top-nav__label">Friends</span>
+        </RouterLink>
       </div>
 
-      <div class="sidebar__footer">
+      <div class="top-nav__user">
         <template v-if="isAuthenticated">
-          <div class="sidebar__user">
-            <div class="sidebar__avatar">
-              {{ userInitial }}
-            </div>
-            <div class="sidebar__user-info">
-              <div class="sidebar__username">{{ username }}</div>
-              <button @click="handleLogout" class="sidebar__logout">
+          <div class="top-nav__user-menu" ref="userMenuRef">
+            <button @click="toggleUserMenu" class="top-nav__avatar-button">
+              <div class="top-nav__avatar">
+                {{ userInitial }}
+              </div>
+            </button>
+
+            <div v-if="showUserMenu" class="top-nav__dropdown">
+              <div class="top-nav__dropdown-username">{{ username }}</div>
+              <button @click="handleLogout" class="top-nav__dropdown-logout">
                 Logout
               </button>
             </div>
           </div>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="sidebar__link" @click="closeSidebar">
-            <svg class="sidebar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-              <polyline points="10 17 15 12 10 7"></polyline>
-              <line x1="15" y1="12" x2="3" y2="12"></line>
-            </svg>
-            Login
-          </RouterLink>
-          <RouterLink to="/register" class="sidebar__link" @click="closeSidebar">
-            <svg class="sidebar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="8.5" cy="7" r="4"></circle>
-              <line x1="20" y1="8" x2="20" y2="14"></line>
-              <line x1="23" y1="11" x2="17" y2="11"></line>
-            </svg>
-            Register
-          </RouterLink>
+          <RouterLink to="/login" class="top-nav__auth-link">Login</RouterLink>
+          <RouterLink to="/register" class="top-nav__auth-link">Register</RouterLink>
         </template>
       </div>
     </nav>
 
-    <main class="main-content" :class="{ 'main-content--shifted': sidebarOpen }">
+    <main class="main-content">
       <RouterView />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, nextTick, ref } from 'vue'
+import { onMounted, onUnmounted, computed, nextTick, ref } from 'vue'
 import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
@@ -108,33 +77,9 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
-// Sidebar state
-const sidebarOpen = ref(false)
-
-// Page info mapping
-const pageInfoMap: Record<string, { name: string; icon: string }> = {
-  'postcards': {
-    name: 'Postcards',
-    icon: '<path d="M3 7.5L12 2l9 5.5M21 7.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5"></path><path d="M3 7.5l9 5.5 9-5.5"></path><rect x="9" y="12" width="6" height="5" rx="1"></rect>'
-  },
-  'wishlist': {
-    name: 'Wishlist',
-    icon: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>'
-  },
-  'friends': {
-    name: 'Friends',
-    icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>'
-  }
-}
-
-// Current page info
-const currentPageInfo = computed(() => {
-  const routeName = route.name as string
-  if (routeName && pageInfoMap[routeName]) {
-    return pageInfoMap[routeName]
-  }
-  return null
-})
+// User menu state
+const showUserMenu = ref(false)
+const userMenuRef = ref<HTMLElement | null>(null)
 
 // Computed properties to ensure reactivity
 const isAuthenticated = computed(() => authStore.isAuthenticated)
@@ -144,17 +89,33 @@ const userInitial = computed(() => {
   return name ? name.charAt(0).toUpperCase() : ''
 })
 
-const toggleSidebar = () => {
-  sidebarOpen.value = !sidebarOpen.value
-}
+// Hide navbar on login and register pages
+const showNavbar = computed(() => {
+  const hideOnRoutes = ['/login', '/register']
+  return !hideOnRoutes.includes(route.path)
+})
 
-const closeSidebar = () => {
-  sidebarOpen.value = false
+// Check if we're on postcards or related pages (create/edit post)
+const isPostcardsActive = computed(() => {
+  const postcardsRoutes = ['/postcards', '/posts/my', '/posts/create']
+  const isPostcardsRoute = postcardsRoutes.includes(route.path)
+  const isEditRoute = route.path.startsWith('/posts/') && route.path.endsWith('/edit')
+  const isDetailRoute = route.path.startsWith('/posts/') && route.path.match(/^\/posts\/[^/]+$/)
+  return isPostcardsRoute || isEditRoute || isDetailRoute
+})
+
+// Check if we're on friends or friend profile page
+const isFriendsActive = computed(() => {
+  return route.path === '/friends' || route.path.startsWith('/friends/')
+})
+
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
 }
 
 const handleLogout = async () => {
-  // Close the sidebar
-  closeSidebar()
+  // Close the menu
+  showUserMenu.value = false
 
   // Clear auth state
   authStore.logout()
@@ -166,9 +127,21 @@ const handleLogout = async () => {
   await router.push('/login')
 }
 
+// Close menu when clicking outside
+const handleClickOutside = (event: MouseEvent) => {
+  if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
+    showUserMenu.value = false
+  }
+}
+
 // Initialize auth store on app start
 onMounted(() => {
   authStore.initializeAuth()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -181,179 +154,115 @@ onMounted(() => {
   flex-direction: column;
 }
 
-/* Top bar */
-.top-bar {
+/* Top Navigation */
+.top-nav {
   display: flex;
   align-items: center;
-  padding: 1rem 1.5rem;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
   background-color: white;
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
-  z-index: 40;
-  gap: 1rem;
+  position: relative;
 }
 
-.hamburger-button {
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  cursor: pointer;
-  color: #374151;
-  transition: color 0.2s;
+.top-nav__brand {
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 0.375rem;
-}
-
-.hamburger-button:hover {
-  color: #ff6b6b;
-  background-color: #f9fafb;
-}
-
-.top-bar__logo {
-  font-family: Oduda, sans-serif;
-  font-weight: 700;
-  font-size: 2rem;
-  color: #ff6b6b;
-}
-
-.top-bar__current-page {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-left: auto;
-  margin-right: 1rem;
-  font-weight: 600;
-  font-size: 1.5rem;
-  color: #ff6b6b;
-}
-
-.top-bar__page-icon {
-  flex-shrink: 0;
-  stroke: currentColor;
-}
-
-/* Sidebar overlay */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 45;
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Sidebar */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 280px;
-  background-color: white;
-  border-right: 1px solid #e5e7eb;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-  transform: translateX(-100%);
-  transition: transform 0.3s ease-out;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.sidebar--open {
-  transform: translateX(0);
-}
-
-.sidebar__header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
   flex-shrink: 0;
 }
 
-.top-bar__logo {
-  vertical-align: center;
-}
-
-.sidebar__logo {
+.top-nav__logo {
   font-family: Oduda, sans-serif;
   font-weight: 700;
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   color: #ff6b6b;
   text-decoration: none;
   transition: color 0.2s;
-  display: block;
+  margin-left: 1rem;
+  margin-top: 1rem;
 }
 
-.sidebar__logo:hover {
+.top-nav__logo:hover {
   color: #ff5252;
 }
 
-.sidebar__nav {
-  flex: 1;
-  padding: 1rem 0;
-  overflow-y: auto;
-}
-
-.sidebar__link {
+.top-nav__links {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1.5rem;
-  font-weight: 500;
-  font-size: 1rem;
-  color: #374151;
+  justify-content: center;
+  gap: 3rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.top-nav__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   text-decoration: none;
   transition: all 0.2s;
-  border-left: 3px solid transparent;
-}
-
-.sidebar__link:hover {
-  background-color: #f9fafb;
-  color: #ff6b6b;
-}
-
-.sidebar__link.router-link-active {
-  background-color: #fef2f2;
-  color: #ff6b6b;
-  border-left-color: #ff6b6b;
-}
-
-.sidebar__icon {
-  flex-shrink: 0;
-}
-
-.sidebar__footer {
-  padding: 1rem;
-  border-top: 1px solid #e5e7eb;
-  flex-shrink: 0;
-}
-
-.sidebar__user {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background-color: #f9fafb;
+  padding: 0.5rem 1rem;
   border-radius: 0.5rem;
 }
 
-.sidebar__avatar {
-  width: 2.5rem;
-  height: 2.5rem;
+.top-nav__icon {
+  flex-shrink: 0;
+  stroke: #9ca3af;
+  transition: stroke 0.2s;
+}
+
+.top-nav__label {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #9ca3af;
+  transition: color 0.2s;
+}
+
+.top-nav__link:hover .top-nav__icon,
+.top-nav__link:hover .top-nav__label {
+  stroke: #6b7280;
+  color: #6b7280;
+}
+
+.top-nav__link.router-link-active .top-nav__icon {
+  stroke: #ff6b6b;
+}
+
+.top-nav__link.router-link-active .top-nav__label {
+  color: #ff6b6b;
+}
+
+.top-nav__user {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-shrink: 0;
+}
+
+.top-nav__user-menu {
+  position: relative;
+}
+
+.top-nav__avatar-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin-right: 1rem;
+}
+
+.top-nav__avatar-button:hover {
+  transform: scale(1.05);
+}
+
+.top-nav__avatar {
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   background: linear-gradient(135deg, #ff6b6b 0%, #ee9027 100%);
   color: white;
@@ -365,36 +274,68 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.sidebar__user-info {
-  flex: 1;
-  min-width: 0;
+.top-nav__dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  min-width: 200px;
+  overflow: hidden;
+  z-index: 50;
+  animation: dropdownFadeIn 0.2s ease-out;
 }
 
-.sidebar__username {
-  font-weight: 600;
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.top-nav__dropdown-username {
+  padding: 1rem;
+  font-weight: 500;
   color: #1f2937;
   font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f8fafc;
 }
 
-.sidebar__logout {
+.top-nav__dropdown-logout {
+  width: 100%;
+  padding: 0.75rem 1rem;
   background: none;
   border: none;
   color: #ef4444;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.2s;
   text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.sidebar__logout:hover {
-  color: #dc2626;
-  text-decoration: underline;
+.top-nav__dropdown-logout:hover {
+  background-color: #fef2f2;
+}
+
+.top-nav__auth-link {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #374151;
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 0.5rem 1rem;
+}
+
+.top-nav__auth-link:hover {
+  color: #ff6b6b;
 }
 
 /* Main content */
@@ -402,19 +343,28 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  transition: margin-left 0.3s ease-out;
 }
 
-@media (min-width: 1024px) {
-  .main-content--shifted {
-    margin-left: 0;
+@media (max-width: 768px) {
+  .top-nav {
+    flex-direction: column;
+    gap: 1rem;
   }
-}
 
-@media (max-width: 640px) {
-  .sidebar {
+  .top-nav__links {
+    position: static;
+    transform: none;
     width: 100%;
-    max-width: 320px;
+    gap: 1.5rem;
+  }
+
+  .top-nav__icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .top-nav__label {
+    font-size: 1rem;
   }
 }
 </style>

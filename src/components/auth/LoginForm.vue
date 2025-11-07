@@ -1,7 +1,5 @@
 <template>
   <form @submit.prevent="handleSubmit" class="login-form">
-    <h2 class="login-form__title">Welcome back</h2>
-    <p class="login-form__subtitle">Sign in to your account to continue</p>
 
     <AuthError
       v-if="error"
@@ -169,21 +167,6 @@ const clearError = () => {
 <style scoped>
 .login-form {
   width: 100%;
-}
-
-.login-form__title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-  text-align: center;
-}
-
-.login-form__subtitle {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0 0 1.5rem 0;
-  text-align: center;
 }
 
 .login-form__options {

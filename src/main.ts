@@ -5,6 +5,7 @@ import App from './App.vue'
 
 import './style.css'
 import './assets/fonts/fonts.css'
+import './assets/awayLogo.png'
 
 const app = createApp(App)
 
