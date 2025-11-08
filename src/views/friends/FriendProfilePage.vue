@@ -9,7 +9,9 @@
           </svg>
           Back
         </button>
-        <h1 class="friend-profile-page__title">{{ friendUsername }}</h1>
+        <div class="friend-profile-page__title-section">
+          <h1 class="friend-profile-page__title">{{ friendUsername }}</h1>
+        </div>
         <button
           @click="handleRemoveFriend"
           class="friend-profile-page__remove-button"
@@ -237,8 +239,8 @@ onMounted(() => {
 }
 
 .friend-profile-page__header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 1.5rem;
   margin-bottom: 2rem;
@@ -257,6 +259,7 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
+  justify-self: start;
 }
 
 .friend-profile-page__back-button:hover {
@@ -269,13 +272,33 @@ onMounted(() => {
   height: 1.25rem;
 }
 
+.friend-profile-page__title-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.friend-profile-page__avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
 .friend-profile-page__title {
   font-size: 2.5rem;
   font-weight: 700;
   color: #374151;
   margin: 0;
-  text-align: center;
-  flex: 1;
 }
 
 .friend-profile-page__remove-button {
@@ -287,6 +310,7 @@ onMounted(() => {
   color: #dc2626;
   border: 1px solid #dc2626;
   font-size: 0.875rem;
+  justify-self: end;
 }
 
 .friend-profile-page__remove-button:hover:not(:disabled) {
@@ -321,7 +345,6 @@ onMounted(() => {
   border-radius: 0.75rem;
   padding: 2rem;
   text-align: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 }
 

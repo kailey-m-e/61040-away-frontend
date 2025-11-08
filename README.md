@@ -1,14 +1,20 @@
 # Away Frontend
 
+## Deployed Link - Render
+
+[Away](https://away-imkc.onrender.com)
+
 ## Assignments
 
-[Assignment 4b Check-In: Frontend UI Coding](/assignment4b-checkin.md.md)
+[Assignment 4b Check-In: Frontend UI Coding](/assignment4b-checkin.md)
 
 [Assignment 4b Final: Frontend UI Coding](/assignment4b-final.md)
 
+[Assignment 4c: Final Project](/assignment4b-final.md) - final video & associated trace
+
 ## Overview
 
-Frontend for Away: a web application for users to document and share their past trips and future travel aspirations.
+Frontend for **Away**: a web application for users to document and share their past trips and future travel aspirations.
 
 Built with Vue.js, TypeScript, Vue Router, and Pinia.
 
@@ -66,20 +72,3 @@ src/
 ├── main.ts          # Application entry point
 └── style.css        # Global styles
 ```
-
-<!-- ## Development -->
-
-<!-- This project uses:
-- **Vue 3** with Composition API
-- **TypeScript** for type safety
-- **Vue Router** for client-side routing
-- **Pinia** for state management
-- **Vite** for fast development and building -->
-
-<!-- ## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request -->

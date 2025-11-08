@@ -10,7 +10,7 @@ const API_BASE_URL = _envBase ? _envBase.replace(/\/$/, '') : ''
 // axios will send requests to the same origin (useful for dev proxy).
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL || undefined,
-  timeout: 30000, // Increased to 30 seconds for slow backend
+  timeout: 10000, // 10 seconds timeout - should be enough for most requests
   headers: {
     'Content-Type': 'application/json',
   },

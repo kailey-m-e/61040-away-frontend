@@ -156,21 +156,21 @@ onUnmounted(() => {
 
 /* Top Navigation */
 .top-nav {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   padding: 0.5rem 1rem;
   background-color: white;
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
-  position: relative;
 }
 
 .top-nav__brand {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  justify-self: start;
 }
 
 .top-nav__logo {
@@ -193,9 +193,6 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 3rem;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 .top-nav__link {
@@ -241,6 +238,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 1.5rem;
   flex-shrink: 0;
+  justify-self: end;
 }
 
 .top-nav__user-menu {

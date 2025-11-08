@@ -72,4 +72,40 @@ export class UserAuthenticationService {
       return { error: errorMessage }
     }
   }
+
+  /**
+   * Get all usernames
+   * Fetches list of all registered usernames for autocomplete
+   */
+  static async getUsernames(): Promise<ApiResponse<{ usernames: string[] }>> {
+    try {
+      console.log('UserAuthenticationService: Fetching usernames from API')
+      const response = await apiClient.post('/api/UserAuthentication/_getUsernames', {})
+      console.log('UserAuthenticationService: Raw response:', response)
+      console.log('UserAuthenticationService: Response data:', response.data)
+
+      // Handle the response structure
+      const responseData = response.data
+      let usernames: string[] = []
+
+      // Backend returns array of { username: string } objects
+      if (Array.isArray(responseData)) {
+        console.log('UserAuthenticationService: Response data is an array')
+        usernames = responseData.map((item: { username: string }) => item.username)
+      } else if (responseData.results && Array.isArray(responseData.results)) {
+        console.log('UserAuthenticationService: Found usernames in results property')
+        usernames = responseData.results.map((item: { username: string }) => item.username)
+      } else {
+        console.warn('UserAuthenticationService: Unexpected response format, using empty array')
+        usernames = []
+      }
+
+      console.log('UserAuthenticationService: Processed usernames:', usernames)
+      return { data: { usernames } }
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: string } }; message?: string }
+      console.error('UserAuthenticationService: Error fetching usernames:', err)
+      return { error: err.response?.data?.error || err.message || 'Failed to fetch usernames' }
+    }
+  }
 }

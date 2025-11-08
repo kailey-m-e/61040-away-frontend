@@ -19,13 +19,19 @@ export class FriendingService {
       console.log('FriendingService: Friend request response:', response.data)
       return { data: response.data }
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { error?: string }, status?: number }; message?: string }
+      const err = error as { response?: { data?: { error?: string }, status?: number }; message?: string; code?: string }
       console.error('FriendingService: Friend request error:', {
         status: err.response?.status,
         data: err.response?.data,
         message: err.message,
+        code: err.code,
         fullError: error
       })
+
+      // Handle timeout errors
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        return { error: 'Request timed out. The server may be slow or unreachable. Please try again.' }
+      }
 
       // Provide more helpful error messages
       if (err.response?.status === 500) {
