@@ -7,12 +7,12 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="wishlist-page__loading">
-        <div class="loading-spinner"></div>
+      <div v-if="loading" class="my-posts-page__loading">
+          <div class="loading-spinner"></div>
       </div>
 
       <!-- Error State -->
-      <div v-if="error" class="wishlist-page__error">
+      <div v-else-if="error" class="wishlist-page__error">
         <p>{{ error }}</p>
         <button @click="loadPlaces" class="wishlist-page__retry">
           Try Again
@@ -58,7 +58,13 @@ const wishlistStore = useWishlistStore()
 const store = storeToRefs(wishlistStore)
 const loading = computed(() => store.loading.value)
 const error = computed(() => store.error.value)
-const places = computed(() => store.places.value)
+
+// Sort places alphabetically by city name
+const places = computed(() => {
+  return [...store.places.value].sort((a, b) => {
+    return a.city.localeCompare(b.city)
+  })
+})
 
 // Define functions
 const loadPlaces = async () => {

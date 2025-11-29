@@ -101,12 +101,9 @@ const emit = defineEmits<{
 const viewMode = ref<'grid' | 'list'>('grid')
 const loadingMore = ref(false)
 
+// Preserve the order from the backend (already sorted by most recent first)
 const sortedPosts = computed(() => {
-  return [...props.posts].sort((a, b) => {
-    const dateA = a.start ? new Date(a.start) : new Date(0)
-    const dateB = b.start ? new Date(b.start) : new Date(0)
-    return dateB.getTime() - dateA.getTime() // Most recent first
-  })
+  return props.posts
 })
 
 const toggleViewMode = () => {

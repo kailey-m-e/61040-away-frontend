@@ -42,12 +42,27 @@ export class WishlistService {
 
   /**
    * Get all places in user's wishlist
-   * Uses session to identify the user
+   * If friend parameter is provided, fetches friend's wishlist instead
+   * @param sessionId - Current user's session ID
+   * @param friendUsername - Optional username of friend whose wishlist to fetch
    */
-  static async getPlaces(sessionId: string): Promise<ApiResponse<GetPlacesResponse>> {
+  static async getPlaces(sessionId: string, friendUsername?: string): Promise<ApiResponse<GetPlacesResponse>> {
     try {
-      console.log('WishlistService: Fetching places with session:', sessionId)
-      const response = await apiClient.post('/api/Wishlist/_getPlaces', { session: sessionId })
+      // Build request body similar to getPosts
+      const requestBody: { session: string; friendUsername?: string } = {
+        session: sessionId
+      }
+
+      // Only add friendUsername to request body if it's provided
+      if (friendUsername) {
+        requestBody.friendUsername = friendUsername
+        console.log('WishlistService: Fetching FRIEND wishlist for:', friendUsername)
+      } else {
+        console.log('WishlistService: Fetching OWN wishlist (no friend parameter)')
+      }
+
+      console.log('WishlistService: Request body:', JSON.stringify(requestBody))
+      const response = await apiClient.post('/api/Wishlist/_getPlaces', requestBody)
       console.log('WishlistService: Raw response:', response)
       console.log('WishlistService: Response data:', response.data)
 

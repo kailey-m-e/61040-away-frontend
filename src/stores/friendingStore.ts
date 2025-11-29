@@ -124,26 +124,38 @@ export const useFriendingStore = defineStore('friending', {
       this.error = null
 
       try {
+        console.log('FriendingStore: Fetching friends for session:', sessionId)
         const result = await FriendingService.getFriends(sessionId)
+        console.log('FriendingStore: getFriends result:', result)
 
         if (result.error) {
-          // If user doesn't exist in Friending yet, initialize with empty array
-          if (result.error.includes('null') || result.error.includes('not found')) {
-            console.warn('User not initialized in Friending yet, using empty friends list')
+          // If user doesn't exist in Friending yet or backend has issues, initialize with empty array
+          const errorLower = result.error.toLowerCase()
+          if (errorLower.includes('null') ||
+              errorLower.includes('not found') ||
+              errorLower.includes('internal server error')) {
+            console.warn('User not initialized in Friending yet or backend error, using empty friends list')
             this.friends = []
+            this.error = null // Clear error since we're handling it gracefully
             return
           }
+          // For other errors, still throw
           throw new Error(result.error)
         }
 
         if (result.data && 'results' in result.data) {
+          console.log('FriendingStore: Setting friends to:', result.data.results)
           this.friends = result.data.results
         } else {
+          console.warn('FriendingStore: No results in response, setting empty friends list')
           this.friends = []
         }
+        console.log('FriendingStore: Current friends state:', this.friends)
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to fetch friends'
+        this.friends = [] // Set empty array on error
         console.error('Error fetching friends:', error)
+        // Don't throw - allow other fetches in fetchAllFriendData to continue
       } finally {
         this.loading = false
       }

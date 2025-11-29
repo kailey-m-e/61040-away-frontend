@@ -111,7 +111,7 @@ onMounted(async () => {
 // Filter usernames based on input
 const filteredUsernames = computed(() => {
   const searchTerm = username.value.toLowerCase().trim()
-  const currentUser = authStore.user?.username.toLowerCase()
+  const currentUser = authStore.user?.username?.toLowerCase()
 
   console.log('FriendRequestForm: Computing filtered usernames')
   console.log('  - Search term:', searchTerm)

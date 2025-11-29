@@ -110,10 +110,20 @@ import type { Post } from '@/types'
 const router = useRouter()
 const postStore = usePostStore()
 
-// Use posts and loading from store
-  const posts = computed(() => postStore.posts)
-  const loading = computed(() => postStore.loading)
-  const error = computed(() => postStore.error)
+// Use posts and loading from store, sorted by most recent start date
+const posts = computed(() => {
+  return [...postStore.posts].sort((a, b) => {
+    // Handle posts without start dates - put them at the end
+    if (!a.start && !b.start) return 0
+    if (!a.start) return 1
+    if (!b.start) return -1
+
+    // Sort by most recent (descending) - newer dates first
+    return new Date(b.start).getTime() - new Date(a.start).getTime()
+  })
+})
+const loading = computed(() => postStore.loading)
+const error = computed(() => postStore.error)
 
   const uniqueCountries = computed(() => {
     const countries = new Set(posts.value.map(post => post.country))

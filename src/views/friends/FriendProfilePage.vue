@@ -42,18 +42,18 @@
         <div class="friend-profile-page__section">
           <h2 class="friend-profile-page__section-title">
             Postcards
-            <span v-if="posts.length" class="friend-profile-page__badge">
-              {{ posts.length }}
+            <span v-if="sortedPosts.length" class="friend-profile-page__badge">
+              {{ sortedPosts.length }}
             </span>
           </h2>
 
-          <div v-if="!posts.length" class="friend-profile-page__empty">
+          <div v-if="!sortedPosts.length" class="friend-profile-page__empty">
             <p>{{ friendUsername }} hasn't shared any postcards yet</p>
           </div>
 
           <div v-else class="friend-profile-page__posts">
             <div
-              v-for="post in posts"
+              v-for="post in sortedPosts"
               :key="post._id"
               class="post-card"
             >
@@ -133,6 +133,19 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const removingFriend = ref(false)
 
+// Sort posts by most recent start date
+const sortedPosts = computed(() => {
+  return [...posts.value].sort((a, b) => {
+    // Handle posts without start dates - put them at the end
+    if (!a.start && !b.start) return 0
+    if (!a.start) return 1
+    if (!b.start) return -1
+
+    // Sort by most recent (descending) - newer dates first
+    return new Date(b.start).getTime() - new Date(a.start).getTime()
+  })
+})
+
 const goBack = () => {
   router.push('/friends')
 }
@@ -211,8 +224,27 @@ const loadData = async () => {
       }
     }
 
-    // Clear wishlist since backend doesn't support viewing other users' wishlists yet
-    wishlistPlaces.value = []
+    // Fetch friend's wishlist
+    console.log('FriendProfilePage: Loading friend wishlist for:', friendUsername.value)
+    const wishlistResult = await WishlistService.getPlaces(sessionId, friendUsername.value)
+
+    // Handle wishlist
+    if (wishlistResult.error) {
+      console.warn('Error loading wishlist:', wishlistResult.error)
+      wishlistPlaces.value = []
+    } else {
+      // Handle both object and array responses
+      let places: WishlistPlace[] = []
+      if (Array.isArray(wishlistResult.data)) {
+        places = wishlistResult.data
+      } else if (wishlistResult.data && 'results' in wishlistResult.data) {
+        places = wishlistResult.data.results || []
+      }
+      // Sort places alphabetically by city name
+      places.sort((a, b) => a.city.localeCompare(b.city))
+      wishlistPlaces.value = places
+      console.log('FriendProfilePage: Loaded friend wishlist places:', wishlistPlaces.value)
+    }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load profile'
     console.error('FriendProfilePage: Error loading friend profile:', err)
